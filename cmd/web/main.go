@@ -7,12 +7,14 @@ import (
 	"net/http"
 	"os"
 
+	"github.com/fredriksiemund/tournament-planner/pkg/models/postgres"
 	"github.com/jackc/pgx/v4"
 )
 
 type application struct {
-	errorLog *log.Logger
-	infoLog  *log.Logger
+	errorLog    *log.Logger
+	infoLog     *log.Logger
+	tournaments *postgres.TournamentModel
 }
 
 func main() {
@@ -34,8 +36,9 @@ func main() {
 
 	// Establishing the dependencies for the handlers (depenency injection)
 	app := &application{
-		errorLog: errorLog,
-		infoLog:  infoLog,
+		errorLog:    errorLog,
+		infoLog:     infoLog,
+		tournaments: &postgres.TournamentModel{Db: db},
 	}
 
 	// Running the HTTP server
