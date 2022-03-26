@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"flag"
+	"html/template"
 	"log"
 	"net/http"
 	"os"
@@ -12,9 +13,10 @@ import (
 )
 
 type application struct {
-	errorLog    *log.Logger
-	infoLog     *log.Logger
-	tournaments *postgres.TournamentModel
+	errorLog      *log.Logger
+	infoLog       *log.Logger
+	templateCache map[string]*template.Template
+	tournaments   *postgres.TournamentModel
 }
 
 func main() {
@@ -34,11 +36,18 @@ func main() {
 	}
 	defer db.Close(context.Background())
 
+	// Set up template cache
+	templateCache, err := newTemplateCache("./ui/html/")
+	if err != nil {
+		errorLog.Fatal(err)
+	}
+
 	// Establishing the dependencies for the handlers (depenency injection)
 	app := &application{
-		errorLog:    errorLog,
-		infoLog:     infoLog,
-		tournaments: &postgres.TournamentModel{Db: db},
+		errorLog:      errorLog,
+		infoLog:       infoLog,
+		templateCache: templateCache,
+		tournaments:   &postgres.TournamentModel{Db: db},
 	}
 
 	// Running the HTTP server

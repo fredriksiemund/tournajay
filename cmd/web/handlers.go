@@ -1,18 +1,15 @@
 package main
 
 import (
-	"fmt"
 	"net/http"
 )
 
 func (app *application) home(w http.ResponseWriter, r *http.Request) {
 	t, err := app.tournaments.Latest()
 	if err != nil {
-		w.Write([]byte("Something went wrong...")) // TODO
+		app.serverError(w, err)
 		return
 	}
 
-	for _, tournament := range t {
-		fmt.Fprintf(w, "%v\n", tournament)
-	}
+	app.render(w, r, "home.page.gohtml", &templateData{Tournaments: t})
 }

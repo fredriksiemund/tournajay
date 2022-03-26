@@ -1,0 +1,27 @@
+{{ template "base" . }}
+
+{{ define "title" }}Home{{ end }}
+
+{{ define "main" }}
+  <h2>Latest Tournaments</h2>
+  {{ if .Tournaments }}
+    <table>
+      <tr>
+        <th>ID</th>
+        <th>Name</th>
+        <th>Date</th>
+      </tr>
+      {{ range .Tournaments }}
+        <tr>
+          <td>
+            <a href="/tournament/{{ .Id }}">{{ .Id }}</a>
+          </td>
+          <td>{{ .Name }}</td>
+          <td>#{{ .Date }}</td>
+        </tr>
+      {{ end }}
+    </table>
+  {{ else }}
+    <p>There's nothing to see here yet!</p>
+  {{ end }}
+{{ end }}
