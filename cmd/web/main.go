@@ -13,10 +13,11 @@ import (
 )
 
 type application struct {
-	errorLog      *log.Logger
-	infoLog       *log.Logger
-	templateCache map[string]*template.Template
-	tournaments   *postgres.TournamentModel
+	errorLog        *log.Logger
+	infoLog         *log.Logger
+	templateCache   map[string]*template.Template
+	tournaments     *postgres.TournamentModel
+	tournamentTypes *postgres.TournamentTypeModel
 }
 
 func main() {
@@ -44,10 +45,11 @@ func main() {
 
 	// Establishing the dependencies for the handlers (depenency injection)
 	app := &application{
-		errorLog:      errorLog,
-		infoLog:       infoLog,
-		templateCache: templateCache,
-		tournaments:   &postgres.TournamentModel{Db: db},
+		errorLog:        errorLog,
+		infoLog:         infoLog,
+		templateCache:   templateCache,
+		tournaments:     &postgres.TournamentModel{Db: db},
+		tournamentTypes: &postgres.TournamentTypeModel{Db: db},
 	}
 
 	// Running the HTTP server

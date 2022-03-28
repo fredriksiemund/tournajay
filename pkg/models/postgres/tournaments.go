@@ -22,8 +22,8 @@ func (m *TournamentModel) Get(id int) (*models.Tournament, error) {
 	return nil, nil
 }
 
-// This will return the 10 most recently created tournaments.
-func (m *TournamentModel) Latest() ([]*models.Tournament, error) {
+// This will return all tournaments.
+func (m *TournamentModel) All() ([]*models.Tournament, error) {
 	stmt := `SELECT * FROM tournaments ORDER BY date ASC`
 
 	rows, err := m.Db.Query(context.Background(), stmt)

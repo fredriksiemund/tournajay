@@ -9,8 +9,9 @@ import (
 )
 
 type templateData struct {
-	Tournament  *models.Tournament
-	Tournaments []*models.Tournament
+	Tournament      *models.Tournament
+	Tournaments     []*models.Tournament
+	TournamentTypes []*models.TournamentType
 }
 
 func humanDate(t time.Time) string {

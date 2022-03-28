@@ -19,7 +19,7 @@ INSERT INTO tournament_types (title) VALUES
     ('Single elimination'),
     ('Double elimination'),
     ('Round robin'),
-    ('Round robin and single elimination');
+    ('Round robin followed by single elimination');
 
 INSERT INTO tournaments (title, date, tournament_type) VALUES
     ('Mario Kart Tournament', '2022-05-22 18:30', 1),

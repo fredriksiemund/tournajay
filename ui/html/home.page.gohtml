@@ -1,9 +1,12 @@
 {{ template "base" . }}
 
-{{ define "title" }}Home{{ end }}
+{{ define "title" }}Upcoming tournaments{{ end }}
 
 {{ define "main" }}
-  <h2 class="mt-4">🏆 Upcoming tournaments 🏆</h2>
+  <div class="mt-4 d-flex align-items-end justify-content-between">
+    <h2>🏆 Upcoming tournaments 🏆</h2>
+    <a class="btn btn-outline-primary" href="/tournament"> + New </a>
+  </div>
   {{ if .Tournaments }}
     <table class="table table-hover mt-4">
       <thead>
@@ -23,7 +26,7 @@
     </table>
   {{ else }}
     <p class="mt-4">
-      Seems like there are no tournaments planned at the moment 😢
+      Looks like there are no tournaments planned at the moment 😢
     </p>
   {{ end }}
 {{ end }}
