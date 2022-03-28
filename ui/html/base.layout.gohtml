@@ -18,10 +18,12 @@
       />
     </head>
     <body>
-      <h1>Tournament planner</h1>
-      <main>
-        {{ template "main" . }}
-      </main>
+      {{ template "navbar" . }}
+      <div class="container">
+        <main>
+          {{ template "main" . }}
+        </main>
+      </div>
       <!-- Link to Bootstrap JS bundle -->
       <script
         src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.min.js"

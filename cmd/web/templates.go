@@ -39,6 +39,14 @@ func newTemplateCache(dir string) (map[string]*template.Template, error) {
 			return nil, err
 		}
 
+		// Use the ParseGlob method to add any 'partial' templates to the
+		// template set (in our case, it's just the 'footer' partial at the
+		// moment).
+		ts, err = ts.ParseGlob(filepath.Join(dir, "*.partial.gohtml"))
+		if err != nil {
+			return nil, err
+		}
+
 		// Add the template set to the cache, using the name of the page
 		// (like 'home.page.gohtml') as the key.
 		cache[name] = ts
