@@ -8,7 +8,8 @@ import (
 var ErrNoRecord = errors.New("models: not matching record found")
 
 type Tournament struct {
-	Id   int
-	Name string
-	Date time.Time
+	Id    int
+	Title string
+	Date  time.Time
+	Type  int
 }

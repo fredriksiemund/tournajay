@@ -38,7 +38,7 @@ func (m *TournamentModel) Latest() ([]*models.Tournament, error) {
 	for rows.Next() {
 		t := &models.Tournament{}
 
-		err = rows.Scan(&t.Id, &t.Name, &t.Date)
+		err = rows.Scan(&t.Id, &t.Title, &t.Date, &t.Type)
 		if err != nil {
 			return nil, err
 		}

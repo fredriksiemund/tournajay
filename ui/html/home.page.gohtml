@@ -15,7 +15,7 @@
       <tbody>
         {{ range .Tournaments }}
           <tr>
-            <td><a href="/tournament/{{ .Id }}">{{ .Name }}</a></td>
+            <td><a href="/tournament/{{ .Id }}">{{ .Title }}</a></td>
             <td>{{ humanDate .Date }}</td>
           </tr>
         {{ end }}
