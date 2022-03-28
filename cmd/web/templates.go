@@ -3,6 +3,7 @@ package main
 import (
 	"html/template"
 	"path/filepath"
+	"time"
 
 	"github.com/fredriksiemund/tournament-planner/pkg/models"
 )
@@ -10,6 +11,14 @@ import (
 type templateData struct {
 	Tournament  *models.Tournament
 	Tournaments []*models.Tournament
+}
+
+func humanDate(t time.Time) string {
+	return t.Format("02 Jan at 15:04")
+}
+
+var functions = template.FuncMap{
+	"humanDate": humanDate,
 }
 
 func newTemplateCache(dir string) (map[string]*template.Template, error) {
@@ -26,7 +35,7 @@ func newTemplateCache(dir string) (map[string]*template.Template, error) {
 		name := filepath.Base(page)
 
 		// Parse the page template file in to a template set.
-		ts, err := template.New(name).ParseFiles(page)
+		ts, err := template.New(name).Funcs(functions).ParseFiles(page)
 		if err != nil {
 			return nil, err
 		}
