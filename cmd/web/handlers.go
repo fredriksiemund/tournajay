@@ -2,9 +2,14 @@ package main
 
 import (
 	"net/http"
+	"net/url"
+	"time"
 
+	"github.com/fredriksiemund/tournament-planner/pkg/forms"
 	"github.com/julienschmidt/httprouter"
 )
+
+const layout = "2006-01-02T15:04"
 
 func (app *application) home(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	t, err := app.tournaments.All()
@@ -13,15 +18,40 @@ func (app *application) home(w http.ResponseWriter, r *http.Request, _ httproute
 		return
 	}
 
-	app.render(w, r, "home.page.gohtml", &templateData{Tournaments: t})
+	app.render(w, r, "home.page.gohtml", &templateData{
+		Tournaments: t,
+	})
 }
 
 func (app *application) createTournamentForm(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
-	t, err := app.tournamentTypes.All()
+	v := url.Values{}
+	v.Set("datetime", time.Now().Format(layout))
+	form := forms.New(v)
+
+	app.render(w, r, "create.page.gohtml", &templateData{
+		Form: form,
+	})
+}
+
+func (app *application) createTournament(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
+	err := r.ParseForm()
 	if err != nil {
-		app.serverError(w, err)
+		app.clientError(w, http.StatusBadRequest)
 		return
 	}
 
-	app.render(w, r, "create.page.gohtml", &templateData{TournamentTypes: t})
+	form := forms.New(r.PostForm)
+	form.Required("title", "datetime", "type")
+	form.MaxLength("title", 100)
+	form.PermittedValues("type", "0", "1", "2", "3")
+	form.ValidDate("datetime", layout)
+
+	if !form.Valid() {
+		app.render(w, r, "create.page.gohtml", &templateData{
+			Form: form,
+		})
+		return
+	}
+
+	http.Redirect(w, r, "/", http.StatusSeeOther)
 }

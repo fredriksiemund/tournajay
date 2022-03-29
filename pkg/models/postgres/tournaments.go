@@ -24,7 +24,7 @@ func (m *TournamentModel) Get(id int) (*models.Tournament, error) {
 
 // This will return all tournaments.
 func (m *TournamentModel) All() ([]*models.Tournament, error) {
-	stmt := `SELECT * FROM tournaments ORDER BY date ASC`
+	stmt := `SELECT * FROM tournaments ORDER BY datetime ASC`
 
 	rows, err := m.Db.Query(context.Background(), stmt)
 	if err != nil {
@@ -38,7 +38,7 @@ func (m *TournamentModel) All() ([]*models.Tournament, error) {
 	for rows.Next() {
 		t := &models.Tournament{}
 
-		err = rows.Scan(&t.Id, &t.Title, &t.Date, &t.Type)
+		err = rows.Scan(&t.Id, &t.Title, &t.DateTime, &t.Type)
 		if err != nil {
 			return nil, err
 		}

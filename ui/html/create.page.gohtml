@@ -5,30 +5,77 @@
 {{ define "main" }}
   <h2 class="mt-4">🗽 New tournament 🗽</h2>
   <form action="/tournament" method="POST">
-    <div class="mb-3">
-      <label class="form-label">Name</label>
-      <input type="text" name="title" class="form-control" />
-    </div>
-    <div class="mb-3 d-flex">
-      <div class="d-flex flex-column flex-grow-1">
-        <label class="form-label">Date</label>
-        <input type="date" name="date" class="form-control" />
+    {{ with .Form }}
+      <div class="row mb-3">
+        <div class="col-lg-6">
+          <label class="form-label">Name</label>
+          <input
+            type="text"
+            name="title"
+            class="form-control {{ with .Errors.Get "title" }}
+              is-invalid
+            {{ end }}"
+            value="{{ .Get "title" }}"
+          />
+          {{ with .Errors.Get "title" }}
+            <div class="invalid-feedback">{{ . }}</div>
+          {{ end }}
+        </div>
       </div>
-      <div class="d-flex flex-column flex-grow-1">
-        <label class="form-label">Time</label>
-        <input type="time" name="time" class="form-control" />
+
+      <div class="row mb-3">
+        <div class="col-lg-6">
+          <label class="form-label">Date</label>
+          <input
+            type="datetime-local"
+            name="datetime"
+            class="form-control {{ with .Errors.Get "datetime" }}
+              is-invalid
+            {{ end }}"
+            value="{{ .Get "datetime" }}"
+          />
+          {{ with .Errors.Get "datetime" }}
+            <div class="invalid-feedback">{{ . }}</div>
+          {{ end }}
+        </div>
       </div>
-    </div>
-    <div class="mb-3">
-      <label class="form-label">Type</label>
-      <select name="type" class="form-select">
-        {{ range .TournamentTypes }}
-          <option value="{{ .Id }}">{{ .Title }}</option>
-        {{ end }}
-      </select>
-    </div>
-    <div>
-      <input type="submit" class="btn btn-success" value="Submit" />
-    </div>
+
+      <div class="row mb-3">
+        <div class="col-lg-6">
+          <label class="form-label">Type</label>
+          <select name="type" class="form-select">
+            {{ $exp := or (.Get "type") "0" }}
+            <option
+              value="0"
+              {{ if (eq $exp "0") }}selected{{ end }}
+            >
+              Single elimination
+            </option>
+            <option
+              value="1"
+              {{ if (eq $exp "1") }}selected{{ end }}
+            >
+              Double elimination
+            </option>
+            <option
+              value="2"
+              {{ if (eq $exp "2") }}selected{{ end }}
+            >
+              Round robin
+            </option>
+            <option
+              value="3"
+              {{ if (eq $exp "3") }}selected{{ end }}
+            >
+              Round robin followed by single elimination
+            </option>
+          </select>
+        </div>
+      </div>
+
+      <div>
+        <input type="submit" class="btn btn-success" value="Submit" />
+      </div>
+    {{ end }}
   </form>
 {{ end }}

@@ -5,13 +5,14 @@ import (
 	"path/filepath"
 	"time"
 
+	"github.com/fredriksiemund/tournament-planner/pkg/forms"
 	"github.com/fredriksiemund/tournament-planner/pkg/models"
 )
 
 type templateData struct {
-	Tournament      *models.Tournament
-	Tournaments     []*models.Tournament
-	TournamentTypes []*models.TournamentType
+	Form        *forms.Form
+	Tournament  *models.Tournament
+	Tournaments []*models.Tournament
 }
 
 func humanDate(t time.Time) string {

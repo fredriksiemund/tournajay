@@ -13,8 +13,8 @@ type TournamentType struct {
 }
 
 type Tournament struct {
-	Id    int
-	Title string
-	Date  time.Time
-	Type  int
+	Id       int
+	Title    string
+	DateTime time.Time
+	Type     int
 }
