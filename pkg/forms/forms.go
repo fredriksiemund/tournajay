@@ -88,6 +88,7 @@ func (f *Form) ValidDate(field, layout string) {
 	if d.Before(time.Now()) {
 		f.Errors.Add(field, "This field should be a date in the future")
 	}
+	f.Set(field, d.Format("2006-01-02 15:04"))
 }
 
 func (f *Form) Valid() bool {

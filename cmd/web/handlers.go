@@ -53,5 +53,12 @@ func (app *application) createTournament(w http.ResponseWriter, r *http.Request,
 		return
 	}
 
+	_, err = app.tournaments.Insert(form.Get("title"), form.Get("datetime"), form.Get("type"))
+	if err != nil {
+		app.serverError(w, err)
+		return
+	}
+
+	// TODO: redirect to the newly created tournament
 	http.Redirect(w, r, "/", http.StatusSeeOther)
 }

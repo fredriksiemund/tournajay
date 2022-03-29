@@ -46,26 +46,26 @@
           <select name="type" class="form-select">
             {{ $exp := or (.Get "type") "0" }}
             <option
-              value="0"
-              {{ if (eq $exp "0") }}selected{{ end }}
-            >
-              Single elimination
-            </option>
-            <option
               value="1"
               {{ if (eq $exp "1") }}selected{{ end }}
             >
-              Double elimination
+              Single elimination
             </option>
             <option
               value="2"
               {{ if (eq $exp "2") }}selected{{ end }}
             >
-              Round robin
+              Double elimination
             </option>
             <option
               value="3"
               {{ if (eq $exp "3") }}selected{{ end }}
+            >
+              Round robin
+            </option>
+            <option
+              value="4"
+              {{ if (eq $exp "4") }}selected{{ end }}
             >
               Round robin followed by single elimination
             </option>
