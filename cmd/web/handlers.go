@@ -27,28 +27,6 @@ func (app *application) home(w http.ResponseWriter, r *http.Request, _ httproute
 	})
 }
 
-func (app *application) showTournament(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
-	id, err := strconv.Atoi(ps.ByName("id"))
-	if err != nil || id < 1 {
-		app.notFound(w)
-		return
-	}
-
-	t, err := app.tournaments.Get(id)
-	if err != nil {
-		if errors.Is(err, models.ErrNoRecord) {
-			app.notFound(w)
-		} else {
-			app.serverError(w, err)
-		}
-		return
-	}
-
-	app.render(w, r, "show.page.gohtml", &templateData{
-		Tournament: t,
-	})
-}
-
 func (app *application) createTournamentForm(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	v := url.Values{}
 	v.Set("datetime", time.Now().Format(layout))
@@ -87,4 +65,46 @@ func (app *application) createTournament(w http.ResponseWriter, r *http.Request,
 	}
 
 	http.Redirect(w, r, fmt.Sprintf("tournament/%d", id), http.StatusSeeOther)
+}
+
+func (app *application) showTournament(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+	id, err := strconv.Atoi(ps.ByName("id"))
+	if err != nil || id < 1 {
+		app.notFound(w)
+		return
+	}
+
+	t, err := app.tournaments.Get(id)
+	if err != nil {
+		if errors.Is(err, models.ErrNoRecord) {
+			app.notFound(w)
+		} else {
+			app.serverError(w, err)
+		}
+		return
+	}
+
+	app.render(w, r, "show.page.gohtml", &templateData{
+		Tournament: t,
+	})
+}
+
+func (app *application) removeTournament(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+	id, err := strconv.Atoi(ps.ByName("id"))
+	if err != nil || id < 1 {
+		app.notFound(w)
+		return
+	}
+
+	err = app.tournaments.Delete(id)
+	if err != nil {
+		if errors.Is(err, models.ErrNoRecord) {
+			app.notFound(w)
+		} else {
+			app.serverError(w, err)
+		}
+		return
+	}
+
+	w.WriteHeader(http.StatusNoContent)
 }

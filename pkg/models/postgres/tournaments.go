@@ -83,3 +83,18 @@ func (m *TournamentModel) All() ([]*models.Tournament, error) {
 
 	return tournaments, nil
 }
+
+func (m *TournamentModel) Delete(id int) error {
+	stmt := "DELETE FROM tournaments WHERE id = $1"
+
+	_, err := m.Db.Exec(context.Background(), stmt, id)
+	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return models.ErrNoRecord
+		} else {
+			return err
+		}
+	}
+
+	return nil
+}
