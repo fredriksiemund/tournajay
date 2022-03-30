@@ -1,11 +1,15 @@
 package main
 
 import (
+	"errors"
+	"fmt"
 	"net/http"
 	"net/url"
+	"strconv"
 	"time"
 
 	"github.com/fredriksiemund/tournament-planner/pkg/forms"
+	"github.com/fredriksiemund/tournament-planner/pkg/models"
 	"github.com/julienschmidt/httprouter"
 )
 
@@ -20,6 +24,28 @@ func (app *application) home(w http.ResponseWriter, r *http.Request, _ httproute
 
 	app.render(w, r, "home.page.gohtml", &templateData{
 		Tournaments: t,
+	})
+}
+
+func (app *application) showTournament(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+	id, err := strconv.Atoi(ps.ByName("id"))
+	if err != nil || id < 1 {
+		app.notFound(w)
+		return
+	}
+
+	t, err := app.tournaments.Get(id)
+	if err != nil {
+		if errors.Is(err, models.ErrNoRecord) {
+			app.notFound(w)
+		} else {
+			app.serverError(w, err)
+		}
+		return
+	}
+
+	app.render(w, r, "show.page.gohtml", &templateData{
+		Tournament: t,
 	})
 }
 
@@ -43,6 +69,7 @@ func (app *application) createTournament(w http.ResponseWriter, r *http.Request,
 	form := forms.New(r.PostForm)
 	form.Required("title", "datetime", "type")
 	form.MaxLength("title", 100)
+	form.MaxLength("description", 1000)
 	form.PermittedValues("type", "0", "1", "2", "3")
 	form.ValidDate("datetime", layout)
 
@@ -53,12 +80,11 @@ func (app *application) createTournament(w http.ResponseWriter, r *http.Request,
 		return
 	}
 
-	_, err = app.tournaments.Insert(form.Get("title"), form.Get("datetime"), form.Get("type"))
+	id, err := app.tournaments.Insert(form.Get("title"), form.Get("description"), form.Get("datetime"), form.Get("type"))
 	if err != nil {
 		app.serverError(w, err)
 		return
 	}
 
-	// TODO: redirect to the newly created tournament
-	http.Redirect(w, r, "/", http.StatusSeeOther)
+	http.Redirect(w, r, fmt.Sprintf("tournament/%d", id), http.StatusSeeOther)
 }

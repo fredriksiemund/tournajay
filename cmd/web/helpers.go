@@ -17,6 +17,10 @@ func (app *application) clientError(w http.ResponseWriter, status int) {
 	http.Error(w, http.StatusText(status), status)
 }
 
+func (app *application) notFound(w http.ResponseWriter) {
+	app.clientError(w, http.StatusNotFound)
+}
+
 func (app *application) render(w http.ResponseWriter, r *http.Request, name string, td *templateData) {
 	// Retrieve the appropriate template set from the cache based on the page name
 	// (like 'home.page.gohtml'). If no entry exists in the cache with the

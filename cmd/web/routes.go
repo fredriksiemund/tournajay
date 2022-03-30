@@ -11,6 +11,7 @@ func (app *application) routes() http.Handler {
 	router.GET("/", app.home)
 	router.GET("/tournament", app.createTournamentForm)
 	router.POST("/tournament", app.createTournament)
+	router.GET("/tournament/:id", app.showTournament)
 
 	return router
 }
