@@ -60,33 +60,44 @@
       <div class="row mb-3">
         <div class="col-lg-6">
           <label class="form-label">Type</label>
-          <select name="type" class="form-select">
-            {{ $exp := or (.Get "type") "0" }}
+          <select
+            name="type"
+            class="form-select  {{ with .Errors.Get "type" }}
+              is-invalid
+            {{ end }}"
+          >
+            {{ $exp := or (.Get "type") "4" }}
             <option
               value="1"
               {{ if (eq $exp "1") }}selected{{ end }}
+              disabled
             >
               Single elimination
             </option>
             <option
               value="2"
               {{ if (eq $exp "2") }}selected{{ end }}
+              disabled
             >
               Double elimination
             </option>
             <option
               value="3"
               {{ if (eq $exp "3") }}selected{{ end }}
+              disabled
             >
-              Round robin
+              Straight round robin
             </option>
             <option
               value="4"
               {{ if (eq $exp "4") }}selected{{ end }}
             >
-              Round robin followed by single elimination
+              Split round robin followed by single elimination
             </option>
           </select>
+          {{ with .Errors.Get "type" }}
+            <div class="invalid-feedback">{{ . }}</div>
+          {{ end }}
         </div>
       </div>
 

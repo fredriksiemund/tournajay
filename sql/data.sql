@@ -18,8 +18,8 @@ CREATE TABLE tournaments (
 INSERT INTO tournament_types (title) VALUES 
     ('Single elimination'),
     ('Double elimination'),
-    ('Round robin'),
-    ('Round robin followed by single elimination');
+    ('Straight Round Robin'),
+    ('Split round robin followed by single elimination');
 
 INSERT INTO tournaments (title, description, datetime, tournament_type_id) VALUES
     ('Mario Kart Tournament', 'With supporting text below as a natural lead-in to additional content!', '2022-05-22 18:30', 1),

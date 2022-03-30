@@ -17,17 +17,12 @@
           </div>
 
           <ul class="list-group list-group-flush">
-            <li class="list-group-item">{{ humanDate .DateTime }}</li>
-          </ul>
-        </div>
-      </div>
-
-      <div class="col-lg-6">
-        <div class="card">
-          <div class="card-header">Settings</div>
-
-          <ul class="list-group list-group-flush">
-            <li class="list-group-item">{{ .Type }}</li>
+            <li class="list-group-item">
+              <span>Type:</span> {{ .Type }}
+            </li>
+            <li class="list-group-item">
+              <span>When:</span> {{ humanDate .DateTime }}
+            </li>
           </ul>
         </div>
       </div>

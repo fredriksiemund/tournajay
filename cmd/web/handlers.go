@@ -70,7 +70,7 @@ func (app *application) createTournament(w http.ResponseWriter, r *http.Request,
 	form.Required("title", "datetime", "type")
 	form.MaxLength("title", 100)
 	form.MaxLength("description", 1000)
-	form.PermittedValues("type", "0", "1", "2", "3")
+	form.PermittedValues("type", "1", "2", "3", "4")
 	form.ValidDate("datetime", layout)
 
 	if !form.Valid() {
