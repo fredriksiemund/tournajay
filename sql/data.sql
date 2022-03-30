@@ -1,11 +1,10 @@
+DROP TABLE IF EXISTS tournaments;
 DROP TABLE IF EXISTS tournament_types;
 
 CREATE TABLE tournament_types (
     id serial PRIMARY KEY,
     title varchar(100) NOT NULL
 );
-
-DROP TABLE IF EXISTS tournaments;
 
 CREATE TABLE tournaments (
     id serial PRIMARY KEY,
