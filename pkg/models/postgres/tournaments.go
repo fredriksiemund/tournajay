@@ -14,11 +14,11 @@ type TournamentModel struct {
 }
 
 // This will insert a new tournament into the database.
-func (m *TournamentModel) Insert(title, description, datetime, tournament_type_id string) (int, error) {
+func (m *TournamentModel) Insert(title, description, datetime, tournamentTypeId string) (int, error) {
 	stmt := `INSERT INTO tournaments (title, description, datetime, tournament_type_id)
 	VALUES ($1, $2, $3, $4) RETURNING id`
 
-	row := m.Db.QueryRow(context.Background(), stmt, title, description, datetime, tournament_type_id)
+	row := m.Db.QueryRow(context.Background(), stmt, title, description, datetime, tournamentTypeId)
 
 	var id int
 	err := row.Scan(&id)

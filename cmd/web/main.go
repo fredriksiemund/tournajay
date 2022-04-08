@@ -18,6 +18,7 @@ type application struct {
 	templateCache   map[string]*template.Template
 	tournaments     *postgres.TournamentModel
 	tournamentTypes *postgres.TournamentTypeModel
+	users           *postgres.UserModel
 }
 
 func main() {
@@ -50,6 +51,7 @@ func main() {
 		templateCache:   templateCache,
 		tournaments:     &postgres.TournamentModel{Db: db},
 		tournamentTypes: &postgres.TournamentTypeModel{Db: db},
+		users:           &postgres.UserModel{Db: db},
 	}
 
 	// Running the HTTP server

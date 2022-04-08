@@ -19,3 +19,10 @@ type Tournament struct {
 	DateTime    time.Time
 	Type        string
 }
+
+type User struct {
+	Id      int
+	Name    string
+	Email   string
+	Picture string
+}

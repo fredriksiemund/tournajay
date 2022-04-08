@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"net/http"
@@ -11,6 +12,7 @@ import (
 	"github.com/fredriksiemund/tournament-planner/pkg/forms"
 	"github.com/fredriksiemund/tournament-planner/pkg/models"
 	"github.com/julienschmidt/httprouter"
+	"google.golang.org/api/idtoken"
 )
 
 const layout = "2006-01-02T15:04"
@@ -107,4 +109,31 @@ func (app *application) removeTournament(w http.ResponseWriter, r *http.Request,
 	}
 
 	w.WriteHeader(http.StatusNoContent)
+}
+
+func (app *application) loginUser(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
+	err := r.ParseForm()
+	if err != nil {
+		app.clientError(w, http.StatusBadRequest)
+		return
+	}
+
+	payload, err := idtoken.Validate(context.Background(), r.PostForm.Get("credential"), "879593153148-6pho9arld8k17qol30c23hlr02i8qeru.apps.googleusercontent.com")
+	if err != nil {
+		app.clientError(w, http.StatusBadRequest)
+		return
+	}
+
+	id := fmt.Sprintf("%v", payload.Claims["sub"])
+	name := fmt.Sprintf("%v", payload.Claims["name"])
+	email := fmt.Sprintf("%v", payload.Claims["email"])
+	picture := fmt.Sprintf("%v", payload.Claims["picture"])
+
+	err = app.users.Insert(id, name, email, picture)
+	if err != nil {
+		app.serverError(w, err)
+		return
+	}
+
+	http.Redirect(w, r, "/", http.StatusSeeOther)
 }
