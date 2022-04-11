@@ -11,13 +11,13 @@ import (
 
 	"github.com/fredriksiemund/tournament-planner/pkg/forms"
 	"github.com/fredriksiemund/tournament-planner/pkg/models"
-	"github.com/julienschmidt/httprouter"
+	"github.com/go-chi/chi/v5"
 	"google.golang.org/api/idtoken"
 )
 
 const layout = "2006-01-02T15:04"
 
-func (app *application) home(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
+func (app *application) home(w http.ResponseWriter, r *http.Request) {
 	t, err := app.tournaments.All()
 	if err != nil {
 		app.serverError(w, err)
@@ -29,7 +29,7 @@ func (app *application) home(w http.ResponseWriter, r *http.Request, _ httproute
 	})
 }
 
-func (app *application) createTournamentForm(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
+func (app *application) createTournamentForm(w http.ResponseWriter, r *http.Request) {
 	v := url.Values{}
 	v.Set("datetime", time.Now().Format(layout))
 	form := forms.New(v)
@@ -39,7 +39,7 @@ func (app *application) createTournamentForm(w http.ResponseWriter, r *http.Requ
 	})
 }
 
-func (app *application) createTournament(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
+func (app *application) createTournament(w http.ResponseWriter, r *http.Request) {
 	err := r.ParseForm()
 	if err != nil {
 		app.clientError(w, http.StatusBadRequest)
@@ -69,8 +69,8 @@ func (app *application) createTournament(w http.ResponseWriter, r *http.Request,
 	http.Redirect(w, r, fmt.Sprintf("tournament/%d", id), http.StatusSeeOther)
 }
 
-func (app *application) showTournament(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
-	id, err := strconv.Atoi(ps.ByName("id"))
+func (app *application) showTournament(w http.ResponseWriter, r *http.Request) {
+	id, err := strconv.Atoi(chi.URLParam(r, "id"))
 	if err != nil || id < 1 {
 		app.notFound(w)
 		return
@@ -91,8 +91,8 @@ func (app *application) showTournament(w http.ResponseWriter, r *http.Request, p
 	})
 }
 
-func (app *application) removeTournament(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
-	id, err := strconv.Atoi(ps.ByName("id"))
+func (app *application) removeTournament(w http.ResponseWriter, r *http.Request) {
+	id, err := strconv.Atoi(chi.URLParam(r, "id"))
 	if err != nil || id < 1 {
 		app.notFound(w)
 		return
@@ -111,14 +111,15 @@ func (app *application) removeTournament(w http.ResponseWriter, r *http.Request,
 	w.WriteHeader(http.StatusNoContent)
 }
 
-func (app *application) loginUser(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
+func (app *application) loginUser(w http.ResponseWriter, r *http.Request) {
 	err := r.ParseForm()
 	if err != nil {
 		app.clientError(w, http.StatusBadRequest)
 		return
 	}
 
-	payload, err := idtoken.Validate(context.Background(), r.PostForm.Get("credential"), "879593153148-6pho9arld8k17qol30c23hlr02i8qeru.apps.googleusercontent.com")
+	token := r.PostForm.Get("credential")
+	payload, err := idtoken.Validate(context.Background(), token, googleClientId)
 	if err != nil {
 		app.clientError(w, http.StatusBadRequest)
 		return
@@ -134,6 +135,8 @@ func (app *application) loginUser(w http.ResponseWriter, r *http.Request, _ http
 		app.serverError(w, err)
 		return
 	}
+
+	app.session.Put(r, "idToken", token)
 
 	http.Redirect(w, r, "/", http.StatusSeeOther)
 }

@@ -10,9 +10,10 @@ import (
 )
 
 type templateData struct {
-	Form        *forms.Form
-	Tournament  *models.Tournament
-	Tournaments []*models.Tournament
+	Form            *forms.Form
+	IsAuthenticated bool
+	Tournament      *models.Tournament
+	Tournaments     []*models.Tournament
 }
 
 func humanDate(t time.Time) string {

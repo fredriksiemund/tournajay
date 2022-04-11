@@ -7,14 +7,22 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"time"
 
 	"github.com/fredriksiemund/tournament-planner/pkg/models/postgres"
+	"github.com/golangcollege/sessions"
 	"github.com/jackc/pgx/v4"
 )
+
+type contextKey string
+
+const contextKeyIsAuthenticated = contextKey("isAuthenticated")
+const googleClientId = "879593153148-6pho9arld8k17qol30c23hlr02i8qeru.apps.googleusercontent.com"
 
 type application struct {
 	errorLog        *log.Logger
 	infoLog         *log.Logger
+	session         *sessions.Session
 	templateCache   map[string]*template.Template
 	tournaments     *postgres.TournamentModel
 	tournamentTypes *postgres.TournamentTypeModel
@@ -25,6 +33,7 @@ func main() {
 	// Parsing the runtime configuration settings for the application
 	addr := flag.String("addr", ":4000", "HTTP network address")
 	connStr := flag.String("connStr", "postgres://root:root@localhost:5432/dev", "PostgreSQL connection string")
+	secret := flag.String("secret", "s6Ndh+pPbnzHbS*+9Pk8qGWhTzbpa@ge", "Session secret key")
 
 	flag.Parse()
 
@@ -44,10 +53,14 @@ func main() {
 		errorLog.Fatal(err)
 	}
 
+	session := sessions.New([]byte(*secret))
+	session.Lifetime = 12 * time.Hour
+
 	// Establishing the dependencies for the handlers (depenency injection)
 	app := &application{
 		errorLog:        errorLog,
 		infoLog:         infoLog,
+		session:         session,
 		templateCache:   templateCache,
 		tournaments:     &postgres.TournamentModel{Db: db},
 		tournamentTypes: &postgres.TournamentTypeModel{Db: db},

@@ -3,22 +3,38 @@ package main
 import (
 	"net/http"
 
-	"github.com/julienschmidt/httprouter"
+	"github.com/go-chi/chi/v5"
 )
 
 func (app *application) routes() http.Handler {
-	router := httprouter.New()
 
-	router.GET("/", app.home)
+	r := chi.NewRouter()
 
-	router.GET("/tournament", app.createTournamentForm)
-	router.POST("/tournament", app.createTournament)
-	router.GET("/tournament/:id", app.showTournament)
-	router.DELETE("/tournament/:id", app.removeTournament)
+	// Middleware
+	r.Use(app.recoverPanic)
+	r.Use(app.logRequest)
+	r.Use(secureHeaders)
 
-	router.POST("/user/login", app.loginUser)
+	// Public routes
+	fileServer := http.FileServer(http.Dir("./ui/static/"))
+	r.Handle("/static/*", http.StripPrefix("/static", fileServer))
 
-	router.ServeFiles("/static/*filepath", http.Dir("./ui/static"))
+	// Authenticated Routes
+	r.Group(func(r chi.Router) {
+		r.Use(app.session.Enable)
+		r.Use(app.authenticate)
 
-	return router
+		r.Get("/", app.home)
+		r.Route("/tournament", func(r chi.Router) {
+			r.Post("/", app.createTournament)
+			r.Get("/", app.createTournamentForm)
+			r.Get("/{id}", app.showTournament)
+			r.Delete("/{id}", app.removeTournament)
+		})
+		r.Route("/user", func(r chi.Router) {
+			r.Post("/login", app.loginUser)
+		})
+	})
+
+	return r
 }

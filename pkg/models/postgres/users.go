@@ -2,7 +2,9 @@ package postgres
 
 import (
 	"context"
+	"errors"
 
+	"github.com/fredriksiemund/tournament-planner/pkg/models"
 	"github.com/jackc/pgx/v4"
 )
 
@@ -23,4 +25,21 @@ func (m *UserModel) Insert(id, name, email, picture string) error {
 	}
 
 	return nil
+}
+
+func (m *UserModel) Get(id string) (*models.User, error) {
+	stmt := "SELECT u.id, u.name, u.email, u.picture FROM users u WHERE u.id = $1"
+	row := m.Db.QueryRow(context.Background(), stmt, id)
+
+	u := &models.User{}
+	err := row.Scan(&u.Id, &u.Name, &u.Email, &u.Picture)
+	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return nil, models.ErrNoRecord
+		} else {
+			return nil, err
+		}
+	}
+
+	return u, nil
 }

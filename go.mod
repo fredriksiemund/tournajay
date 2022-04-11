@@ -3,8 +3,9 @@ module github.com/fredriksiemund/tournament-planner
 go 1.17
 
 require (
+	github.com/go-chi/chi/v5 v5.0.7
+	github.com/golangcollege/sessions v1.2.0
 	github.com/jackc/pgx/v4 v4.15.0
-	github.com/julienschmidt/httprouter v1.3.0
 	google.golang.org/api v0.74.0
 )
 
