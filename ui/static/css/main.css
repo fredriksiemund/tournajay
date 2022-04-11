@@ -2,3 +2,7 @@
     height: 45px;
     overflow: hidden;
 }
+
+.profile-picture {
+    height: 2rem;
+}

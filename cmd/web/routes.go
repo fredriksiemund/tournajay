@@ -33,6 +33,7 @@ func (app *application) routes() http.Handler {
 		})
 		r.Route("/user", func(r chi.Router) {
 			r.Post("/login", app.loginUser)
+			r.Post("/logout", app.logoutUser)
 		})
 	})
 

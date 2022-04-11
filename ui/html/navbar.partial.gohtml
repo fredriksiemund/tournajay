@@ -12,9 +12,13 @@
       <div class="col-auto">
         {{ with .CurrentUser }}
           <div class="d-flex align-items-center">
+            <img
+              src="{{ .Picture }}"
+              class="me-2 rounded-circle profile-picture"
+            />
             <span class="fw-bold">{{ .Name }}</span>
             <form action="/user/logout" method="POST">
-              <button type="button" class="btn btn-link">Sign out</button>
+              <input type="submit" class="btn btn-link" value="Sign out" />
             </form>
           </div>
         {{ else }}
