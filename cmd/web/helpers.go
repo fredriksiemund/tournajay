@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"net/http"
 	"runtime/debug"
+
+	"github.com/fredriksiemund/tournament-planner/pkg/models"
 )
 
 func (app *application) serverError(w http.ResponseWriter, err error) {
@@ -21,19 +23,19 @@ func (app *application) notFound(w http.ResponseWriter) {
 	app.clientError(w, http.StatusNotFound)
 }
 
-func (app *application) isAuthenticated(r *http.Request) bool {
-	isAuthenticated, ok := r.Context().Value(contextKeyIsAuthenticated).(bool)
+func (app *application) getCurrentUser(r *http.Request) *models.User {
+	user, ok := r.Context().Value(contextKeyCurrentUser).(*models.User)
 	if !ok {
-		return false
+		return nil
 	}
-	return isAuthenticated
+	return user
 }
 
 func (app *application) addDefaultData(td *templateData, r *http.Request) *templateData {
 	if td == nil {
 		td = &templateData{}
 	}
-	td.IsAuthenticated = app.isAuthenticated(r)
+	td.CurrentUser = app.getCurrentUser(r)
 	return td
 }
 

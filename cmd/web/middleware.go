@@ -43,7 +43,7 @@ func (app *application) recoverPanic(next http.Handler) http.Handler {
 func (app *application) authenticate(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		// Check if id exists
-		exists := app.session.Exists(r, "idToken")
+		exists := app.session.Exists(r, sessionKeyIdToken)
 		if !exists {
 			// Proceed to next handler without setting context
 			next.ServeHTTP(w, r)
@@ -51,7 +51,7 @@ func (app *application) authenticate(next http.Handler) http.Handler {
 		}
 
 		// Check if a user with the provided id exists
-		token := app.session.GetString(r, "idToken")
+		token := app.session.GetString(r, sessionKeyIdToken)
 		payload, err := idtoken.Validate(context.Background(), token, googleClientId)
 		if err != nil {
 			// Proceed to next handler without setting context
@@ -60,11 +60,11 @@ func (app *application) authenticate(next http.Handler) http.Handler {
 		}
 
 		id := fmt.Sprintf("%v", payload.Claims["sub"])
-		_, err = app.users.Get(id)
+		user, err := app.users.One(id)
 		if err != nil {
 			if errors.Is(err, models.ErrNoRecord) {
 				// User does not exist, remove from session data and proceed without setting context
-				app.session.Remove(r, "idToken")
+				app.session.Remove(r, sessionKeyIdToken)
 				next.ServeHTTP(w, r)
 				return
 			} else {
@@ -75,8 +75,7 @@ func (app *application) authenticate(next http.Handler) http.Handler {
 		}
 
 		// Include information in request context
-		ctx := r.Context()
-		ctx = context.WithValue(ctx, contextKeyIsAuthenticated, true)
+		ctx := context.WithValue(r.Context(), contextKeyCurrentUser, user)
 		r = r.WithContext(ctx)
 
 		next.ServeHTTP(w, r)

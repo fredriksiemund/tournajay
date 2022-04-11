@@ -30,7 +30,7 @@ func (m *TournamentModel) Insert(title, description, datetime, tournamentTypeId 
 }
 
 // This will return a specific tournament based on its id.
-func (m *TournamentModel) Get(id int) (*models.Tournament, error) {
+func (m *TournamentModel) One(id int) (*models.Tournament, error) {
 	stmt := `SELECT t.id, t.title, t.description, t.datetime, tt.title FROM tournaments t
 	INNER JOIN tournament_types tt ON t.tournament_type_id = tt.id
 	WHERE t.id = $1`

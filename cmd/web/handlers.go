@@ -76,7 +76,7 @@ func (app *application) showTournament(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	t, err := app.tournaments.Get(id)
+	t, err := app.tournaments.One(id)
 	if err != nil {
 		if errors.Is(err, models.ErrNoRecord) {
 			app.notFound(w)
@@ -136,7 +136,7 @@ func (app *application) loginUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	app.session.Put(r, "idToken", token)
+	app.session.Put(r, sessionKeyIdToken, token)
 
 	http.Redirect(w, r, "/", http.StatusSeeOther)
 }

@@ -16,7 +16,8 @@ import (
 
 type contextKey string
 
-const contextKeyIsAuthenticated = contextKey("isAuthenticated")
+const contextKeyCurrentUser = contextKey("isAuthenticated")
+const sessionKeyIdToken = "idToken"
 const googleClientId = "879593153148-6pho9arld8k17qol30c23hlr02i8qeru.apps.googleusercontent.com"
 
 type application struct {

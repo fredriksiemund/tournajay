@@ -27,7 +27,7 @@ func (m *UserModel) Insert(id, name, email, picture string) error {
 	return nil
 }
 
-func (m *UserModel) Get(id string) (*models.User, error) {
+func (m *UserModel) One(id string) (*models.User, error) {
 	stmt := "SELECT u.id, u.name, u.email, u.picture FROM users u WHERE u.id = $1"
 	row := m.Db.QueryRow(context.Background(), stmt, id)
 
