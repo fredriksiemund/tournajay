@@ -60,7 +60,7 @@ func (app *application) createTournament(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	id, err := app.tournaments.Insert(form.Get("title"), form.Get("description"), form.Get("datetime"), form.Get("type"))
+	id, err := app.tournaments.Insert(form.Get("title"), form.Get("description"), form.Get("datetime"), form.Get("type"), app.getCurrentUser(r).Id)
 	if err != nil {
 		app.serverError(w, err)
 		return

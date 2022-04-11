@@ -1,6 +1,6 @@
 DROP TABLE IF EXISTS participants;
-DROP TABLE IF EXISTS users;
 DROP TABLE IF EXISTS tournaments;
+DROP TABLE IF EXISTS users;
 DROP TABLE IF EXISTS tournament_types;
 
 CREATE TABLE tournament_types (
@@ -21,7 +21,9 @@ CREATE TABLE tournaments (
     description TEXT DEFAULT '' NOT NULL,
     datetime TIMESTAMP NOT NULL,
     tournament_type_id INT NOT NULL,
-    FOREIGN KEY (tournament_type_id) REFERENCES tournament_types (id)
+    creator_id varchar(100) NOT NULL,
+    FOREIGN KEY (tournament_type_id) REFERENCES tournament_types (id),
+    FOREIGN KEY (creator_id) REFERENCES users (id)
 );
 
 CREATE TABLE participants (
@@ -38,10 +40,6 @@ INSERT INTO tournament_types (title) VALUES
     ('Straight Round Robin'),
     ('Split round robin followed by single elimination');
 
-INSERT INTO tournaments (title, description, datetime, tournament_type_id) VALUES
-    ('Mario Kart Tournament', 'With supporting text below as a natural lead-in to additional content!', '2022-05-22 18:30', 4),
-    ('Super Smash Tournament', 'With supporting text below as a natural lead-in to additional content!', '2022-05-09 19:00', 4);
-
 INSERT INTO users values
     ('1', 'John McKelly', 'temp@example.com', 'http://www.url.com'),
     ('2', 'Sara Jonsson', 'temp@example.com', 'http://www.url.com'),
@@ -53,6 +51,10 @@ INSERT INTO users values
     ('8', 'Kristian Luuk', 'temp@example.com', 'http://www.url.com'),
     ('9', 'Babben Larsson', 'temp@example.com', 'http://www.url.com'),
     ('10', 'David Sundin', 'temp@example.com', 'http://www.url.com');
+
+INSERT INTO tournaments (title, description, datetime, tournament_type_id, creator_id) VALUES
+    ('Mario Kart Tournament', 'With supporting text below as a natural lead-in to additional content!', '2022-05-22 18:30', 4, '1'),
+    ('Super Smash Tournament', 'With supporting text below as a natural lead-in to additional content!', '2022-05-09 19:00', 4, '2');
 
 INSERT INTO participants values 
     (2, 1),
