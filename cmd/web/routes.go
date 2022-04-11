@@ -26,6 +26,7 @@ func (app *application) routes() http.Handler {
 
 		r.Get("/", app.home)
 		r.Route("/tournament", func(r chi.Router) {
+			r.Use(app.requireAuthentication)
 			r.Post("/", app.createTournament)
 			r.Get("/", app.createTournamentForm)
 			r.Get("/{id}", app.showTournament)

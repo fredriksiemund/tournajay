@@ -3,34 +3,67 @@
 {{ define "title" }}Upcoming tournaments{{ end }}
 
 {{ define "main" }}
-  <div class="row mt-3 gy-4">
-    <div class="col-auto">
-      <h2>🏆 Upcoming tournaments 🏆</h2>
+  {{ if .CurrentUser }}
+    <div class="row mt-3 gy-4">
+      <div class="col-auto">
+        <h2>🏆 Upcoming tournaments 🏆</h2>
+      </div>
+      <div class="col">
+        <a class="btn btn-outline-primary float-end" href="/tournament">New</a>
+      </div>
     </div>
-    <div class="col">
-      <a class="btn btn-outline-primary float-end" href="/tournament">New</a>
-    </div>
-  </div>
-  {{ if .Tournaments }}
-    <table class="table table-hover mt-4">
-      <thead>
-        <tr>
-          <th>What?</th>
-          <th>When?</th>
-        </tr>
-      </thead>
-      <tbody>
-        {{ range .Tournaments }}
+    {{ if .Tournaments }}
+      <table class="table table-hover mt-4">
+        <thead>
           <tr>
-            <td><a href="/tournament/{{ .Id }}">{{ .Title }}</a></td>
-            <td>{{ humanDate .DateTime }}</td>
+            <th>What?</th>
+            <th>When?</th>
           </tr>
-        {{ end }}
-      </tbody>
-    </table>
+        </thead>
+        <tbody>
+          {{ range .Tournaments }}
+            <tr>
+              <td><a href="/tournament/{{ .Id }}">{{ .Title }}</a></td>
+              <td>{{ humanDate .DateTime }}</td>
+            </tr>
+          {{ end }}
+        </tbody>
+      </table>
+    {{ else }}
+      <p class="mt-4">
+        Looks like there are no tournaments planned at the moment 😢
+      </p>
+    {{ end }}
   {{ else }}
-    <p class="mt-4">
-      Looks like there are no tournaments planned at the moment 😢
-    </p>
+    <div class="d-flex justify-content-center align-items-center vh-100">
+      <div class="card">
+        <div class="card-body">
+          <h5 class="card-title">Welcome to tournajay!</h5>
+          <p class="card-text">Please sign in:</p>
+          <div class="google-sign-in-button">
+            <div
+              id="g_id_onload"
+              data-client_id="879593153148-6pho9arld8k17qol30c23hlr02i8qeru.apps.googleusercontent.com"
+              data-context="signin"
+              data-ux_mode="popup"
+              data-login_uri="/user/login"
+              data-auto_prompt="false"
+            ></div>
+
+            <div
+              class="g_id_signin"
+              data-type="standard"
+              data-shape="rectangular"
+              data-theme="outline"
+              data-text="signin_with"
+              data-size="medium"
+              data-logo_alignment="left"
+            ></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- Link to Google Identity Services library -->
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
   {{ end }}
 {{ end }}
