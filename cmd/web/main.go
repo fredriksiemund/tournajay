@@ -23,6 +23,7 @@ const googleClientId = "879593153148-6pho9arld8k17qol30c23hlr02i8qeru.apps.googl
 type application struct {
 	errorLog        *log.Logger
 	infoLog         *log.Logger
+	participants    *postgres.ParticipantModel
 	session         *sessions.Session
 	templateCache   map[string]*template.Template
 	tournaments     *postgres.TournamentModel
@@ -61,6 +62,7 @@ func main() {
 	app := &application{
 		errorLog:        errorLog,
 		infoLog:         infoLog,
+		participants:    &postgres.ParticipantModel{Db: db},
 		session:         session,
 		templateCache:   templateCache,
 		tournaments:     &postgres.TournamentModel{Db: db},

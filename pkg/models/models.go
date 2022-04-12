@@ -5,7 +5,8 @@ import (
 	"time"
 )
 
-var ErrNoRecord = errors.New("models: not matching record found")
+var ErrNoRecord = errors.New("models: no matching record found")
+var ErrDuplicate = errors.New("models: a record with this primary key already exists")
 
 type User struct {
 	Id      string

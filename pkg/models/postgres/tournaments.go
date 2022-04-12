@@ -1,7 +1,6 @@
 package postgres
 
 import (
-	"context"
 	"errors"
 
 	"github.com/fredriksiemund/tournament-planner/pkg/models"
@@ -18,7 +17,7 @@ func (m *TournamentModel) Insert(title, description, datetime, tournamentTypeId,
 	stmt := `INSERT INTO tournaments (title, description, datetime, tournament_type_id, creator_id)
 	VALUES ($1, $2, $3, $4, $5) RETURNING id`
 
-	row := m.Db.QueryRow(context.Background(), stmt, title, description, datetime, tournamentTypeId, creatorId)
+	row := m.Db.QueryRow(ctx, stmt, title, description, datetime, tournamentTypeId, creatorId)
 
 	var id int
 	err := row.Scan(&id)
@@ -37,7 +36,7 @@ func (m *TournamentModel) One(id int) (*models.Tournament, error) {
 	INNER JOIN users u ON t.creator_id = u.id
 	WHERE t.id = $1`
 
-	row := m.Db.QueryRow(context.Background(), stmt, id)
+	row := m.Db.QueryRow(ctx, stmt, id)
 
 	t := &models.Tournament{}
 
@@ -61,7 +60,7 @@ func (m *TournamentModel) All() ([]*models.Tournament, error) {
 	INNER JOIN users u ON t.creator_id = u.id
 	ORDER BY t.datetime ASC`
 
-	rows, err := m.Db.Query(context.Background(), stmt)
+	rows, err := m.Db.Query(ctx, stmt)
 	if err != nil {
 		return nil, err
 	}
@@ -91,7 +90,7 @@ func (m *TournamentModel) All() ([]*models.Tournament, error) {
 func (m *TournamentModel) Delete(id int) error {
 	stmt := "DELETE FROM tournaments WHERE id = $1"
 
-	_, err := m.Db.Exec(context.Background(), stmt, id)
+	_, err := m.Db.Exec(ctx, stmt, id)
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
 			return models.ErrNoRecord

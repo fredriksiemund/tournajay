@@ -66,7 +66,7 @@ func (app *application) createTournament(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	http.Redirect(w, r, fmt.Sprintf("tournament/%d", id), http.StatusSeeOther)
+	http.Redirect(w, r, fmt.Sprintf("/tournament/%d", id), http.StatusSeeOther)
 }
 
 func (app *application) showTournament(w http.ResponseWriter, r *http.Request) {
@@ -166,4 +166,20 @@ func (app *application) loginUser(w http.ResponseWriter, r *http.Request) {
 func (app *application) logoutUser(w http.ResponseWriter, r *http.Request) {
 	app.session.Remove(r, sessionKeyIdToken)
 	http.Redirect(w, r, "/", http.StatusSeeOther)
+}
+
+func (app *application) createParticipant(w http.ResponseWriter, r *http.Request) {
+	id, err := strconv.Atoi(chi.URLParam(r, "id"))
+	if err != nil || id < 1 {
+		app.notFound(w)
+		return
+	}
+
+	err = app.participants.Insert(id, app.getCurrentUser(r).Id)
+	if err != nil && !errors.Is(err, models.ErrDuplicate) {
+		app.serverError(w, err)
+		return
+	}
+
+	http.Redirect(w, r, fmt.Sprintf("/tournament/%d", id), http.StatusSeeOther)
 }
