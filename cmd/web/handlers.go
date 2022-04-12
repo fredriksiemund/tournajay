@@ -91,6 +91,28 @@ func (app *application) showTournament(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
+func (app *application) showGamePlan(w http.ResponseWriter, r *http.Request) {
+	id, err := strconv.Atoi(chi.URLParam(r, "id"))
+	if err != nil || id < 1 {
+		app.notFound(w)
+		return
+	}
+
+	t, err := app.tournaments.One(id)
+	if err != nil {
+		if errors.Is(err, models.ErrNoRecord) {
+			app.notFound(w)
+		} else {
+			app.serverError(w, err)
+		}
+		return
+	}
+
+	app.render(w, r, "game-plan.page.gohtml", &templateData{
+		Tournament: t,
+	})
+}
+
 func (app *application) removeTournament(w http.ResponseWriter, r *http.Request) {
 	id, err := strconv.Atoi(chi.URLParam(r, "id"))
 	if err != nil || id < 1 {

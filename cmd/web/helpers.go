@@ -36,6 +36,7 @@ func (app *application) addDefaultData(td *templateData, r *http.Request) *templ
 		td = &templateData{}
 	}
 	td.CurrentUser = app.getCurrentUser(r)
+	td.RequestURI = r.URL.RequestURI()
 	return td
 }
 

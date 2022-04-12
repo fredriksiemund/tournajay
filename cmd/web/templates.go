@@ -14,6 +14,7 @@ type templateData struct {
 	Form        *forms.Form
 	Tournament  *models.Tournament
 	Tournaments []*models.Tournament
+	RequestURI  string
 }
 
 func humanDate(t time.Time) string {

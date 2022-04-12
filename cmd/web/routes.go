@@ -31,6 +31,7 @@ func (app *application) routes() http.Handler {
 			r.Get("/", app.createTournamentForm)
 			r.Get("/{id}", app.showTournament)
 			r.Delete("/{id}", app.removeTournament)
+			r.Get("/{id}/game-plan", app.showGamePlan)
 		})
 		r.Route("/user", func(r chi.Router) {
 			r.Post("/login", app.loginUser)
