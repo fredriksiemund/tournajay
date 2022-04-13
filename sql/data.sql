@@ -41,16 +41,16 @@ INSERT INTO tournament_types (title) VALUES
     ('Split round robin followed by single elimination');
 
 INSERT INTO users values
-    ('1', 'John McKelly', 'temp@example.com', 'http://www.url.com'),
-    ('2', 'Sara Jonsson', 'temp@example.com', 'http://www.url.com'),
-    ('3', 'Peter Smith', 'temp@example.com', 'http://www.url.com'),
-    ('4', 'Lisa Clarksson', 'temp@example.com', 'http://www.url.com'),
-    ('5', 'John Persson', 'temp@example.com', 'http://www.url.com'),
-    ('6', 'Fredrik Lindberg', 'temp@example.com', 'http://www.url.com'),
-    ('7', 'Molly Sandén', 'temp@example.com', 'http://www.url.com'),
-    ('8', 'Kristian Luuk', 'temp@example.com', 'http://www.url.com'),
-    ('9', 'Babben Larsson', 'temp@example.com', 'http://www.url.com'),
-    ('10', 'David Sundin', 'temp@example.com', 'http://www.url.com');
+    ('1', 'John McKelly', 'temp@example.com', 'https://randomuser.me/api/portraits/lego/1.jpg'),
+    ('2', 'Sara Jonsson', 'temp@example.com', 'https://randomuser.me/api/portraits/lego/2.jpg'),
+    ('3', 'Peter Smith', 'temp@example.com', 'https://randomuser.me/api/portraits/lego/3.jpg'),
+    ('4', 'Lisa Clarksson', 'temp@example.com', 'https://randomuser.me/api/portraits/lego/4.jpg'),
+    ('5', 'John Persson', 'temp@example.com', 'https://randomuser.me/api/portraits/lego/5.jpg'),
+    ('6', 'Fredrik Lindberg', 'temp@example.com', 'https://randomuser.me/api/portraits/lego/6.jpg'),
+    ('7', 'Molly Sandén', 'temp@example.com', 'https://randomuser.me/api/portraits/lego/7.jpg'),
+    ('8', 'Kristian Luuk', 'temp@example.com', 'https://randomuser.me/api/portraits/lego/8.jpg'),
+    ('9', 'Babben Larsson', 'temp@example.com', 'https://randomuser.me/api/portraits/lego/9.jpg'),
+    ('10', 'David Sundin', 'temp@example.com', 'https://randomuser.me/api/portraits/lego/1.jpg');
 
 INSERT INTO tournaments (title, description, datetime, tournament_type_id, creator_id) VALUES
     ('Mario Kart Tournament', 'With supporting text below as a natural lead-in to additional content!', '2022-05-22 18:30', 4, '1'),

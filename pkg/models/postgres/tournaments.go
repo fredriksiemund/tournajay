@@ -40,7 +40,18 @@ func (m *TournamentModel) One(id int) (*models.Tournament, error) {
 
 	t := &models.Tournament{}
 
-	err := row.Scan(&t.Id, &t.Title, &t.Description, &t.DateTime, &t.Type.Id, &t.Type.Title, &t.Creator.Id, &t.Creator.Name, &t.Creator.Email, &t.Creator.Picture)
+	err := row.Scan(
+		&t.Id,
+		&t.Title,
+		&t.Description,
+		&t.DateTime,
+		&t.Type.Id,
+		&t.Type.Title,
+		&t.Creator.Id,
+		&t.Creator.Name,
+		&t.Creator.Email,
+		&t.Creator.Picture,
+	)
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
 			return nil, models.ErrNoRecord
@@ -48,6 +59,32 @@ func (m *TournamentModel) One(id int) (*models.Tournament, error) {
 			return nil, err
 		}
 	}
+
+	stmt = `SELECT u.id, u.name, u.email, u.picture FROM participants p
+	INNER JOIN users u ON p.user_id = u.id
+	WHERE p.tournament_id = $1`
+
+	rows, err := m.Db.Query(ctx, stmt, id)
+	if err != nil {
+		return nil, err
+	}
+
+	defer rows.Close()
+
+	participants := []models.User{}
+
+	for rows.Next() {
+		u := models.User{}
+
+		err = rows.Scan(&u.Id, &u.Name, &u.Email, &u.Picture)
+		if err != nil {
+			return nil, err
+		}
+
+		participants = append(participants, u)
+	}
+
+	t.Participants = participants
 
 	return t, nil
 }
@@ -72,7 +109,18 @@ func (m *TournamentModel) All() ([]*models.Tournament, error) {
 	for rows.Next() {
 		t := &models.Tournament{}
 
-		err = rows.Scan(&t.Id, &t.Title, &t.Description, &t.DateTime, &t.Type.Id, &t.Type.Title, &t.Creator.Id, &t.Creator.Name, &t.Creator.Email, &t.Creator.Picture)
+		err = rows.Scan(
+			&t.Id,
+			&t.Title,
+			&t.Description,
+			&t.DateTime,
+			&t.Type.Id,
+			&t.Type.Title,
+			&t.Creator.Id,
+			&t.Creator.Name,
+			&t.Creator.Email,
+			&t.Creator.Picture,
+		)
 		if err != nil {
 			return nil, err
 		}

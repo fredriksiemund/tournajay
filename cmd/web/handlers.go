@@ -8,6 +8,7 @@ import (
 	"net/url"
 	"strconv"
 	"time"
+	"unicode/utf8"
 
 	"github.com/fredriksiemund/tournament-planner/pkg/forms"
 	"github.com/fredriksiemund/tournament-planner/pkg/models"
@@ -70,7 +71,7 @@ func (app *application) createTournament(w http.ResponseWriter, r *http.Request)
 }
 
 func (app *application) showTournament(w http.ResponseWriter, r *http.Request) {
-	id, err := strconv.Atoi(chi.URLParam(r, "id"))
+	id, err := strconv.Atoi(chi.URLParam(r, "tournamentId"))
 	if err != nil || id < 1 {
 		app.notFound(w)
 		return
@@ -92,7 +93,7 @@ func (app *application) showTournament(w http.ResponseWriter, r *http.Request) {
 }
 
 func (app *application) showGamePlan(w http.ResponseWriter, r *http.Request) {
-	id, err := strconv.Atoi(chi.URLParam(r, "id"))
+	id, err := strconv.Atoi(chi.URLParam(r, "tournamentId"))
 	if err != nil || id < 1 {
 		app.notFound(w)
 		return
@@ -114,7 +115,7 @@ func (app *application) showGamePlan(w http.ResponseWriter, r *http.Request) {
 }
 
 func (app *application) removeTournament(w http.ResponseWriter, r *http.Request) {
-	id, err := strconv.Atoi(chi.URLParam(r, "id"))
+	id, err := strconv.Atoi(chi.URLParam(r, "tournamentId"))
 	if err != nil || id < 1 {
 		app.notFound(w)
 		return
@@ -169,7 +170,7 @@ func (app *application) logoutUser(w http.ResponseWriter, r *http.Request) {
 }
 
 func (app *application) createParticipant(w http.ResponseWriter, r *http.Request) {
-	id, err := strconv.Atoi(chi.URLParam(r, "id"))
+	id, err := strconv.Atoi(chi.URLParam(r, "tournamentId"))
 	if err != nil || id < 1 {
 		app.notFound(w)
 		return
@@ -182,4 +183,30 @@ func (app *application) createParticipant(w http.ResponseWriter, r *http.Request
 	}
 
 	http.Redirect(w, r, fmt.Sprintf("/tournament/%d", id), http.StatusSeeOther)
+}
+
+func (app *application) removeParticipant(w http.ResponseWriter, r *http.Request) {
+	tournamentId, err := strconv.Atoi(chi.URLParam(r, "tournamentId"))
+	if err != nil || tournamentId < 1 {
+		app.notFound(w)
+		return
+	}
+
+	userId := chi.URLParam(r, "userId")
+	if utf8.RuneCountInString(userId) < 1 {
+		app.notFound(w)
+		return
+	}
+
+	err = app.participants.Delete(tournamentId, userId)
+	if err != nil {
+		if errors.Is(err, models.ErrNoRecord) {
+			app.notFound(w)
+		} else {
+			app.serverError(w, err)
+		}
+		return
+	}
+
+	w.WriteHeader(http.StatusNoContent)
 }

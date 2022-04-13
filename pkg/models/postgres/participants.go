@@ -27,3 +27,18 @@ func (m *ParticipantModel) Insert(tournamentId int, userId string) error {
 
 	return nil
 }
+
+func (m *ParticipantModel) Delete(tournamentId int, userId string) error {
+	stmt := "DELETE FROM participants WHERE tournament_id = $1 AND user_id = $2"
+
+	_, err := m.Db.Exec(ctx, stmt, tournamentId, userId)
+	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return models.ErrNoRecord
+		} else {
+			return err
+		}
+	}
+
+	return nil
+}

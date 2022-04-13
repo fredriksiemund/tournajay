@@ -22,10 +22,12 @@
             <li class="list-group-item">When: {{ humanDate .DateTime }}</li>
             {{ if (eq .Creator.Id $.CurrentUser.Id) }}
               <li class="list-group-item">
-                <button type="button" class="btn btn-warning me-2">Edit</button>
+                <button type="button" class="btn btn-warning btn-sm me-2">
+                  Edit
+                </button>
                 <button
                   type="button"
-                  class="btn btn-danger"
+                  class="btn btn-outline-danger btn-sm"
                   data-bs-toggle="modal"
                   data-bs-target="#deleteModal"
                 >
@@ -40,29 +42,48 @@
       <div class="card mt-4">
         <div class="card-header">Participants</div>
         <ul class="list-group list-group-flush">
-          <li class="list-group-item">Jonas Karlsson</li>
-          <li class="list-group-item">Lisa Jonsson</li>
-          <li class="list-group-item">
-            <form
-              action="/tournament/{{ .Tournament.Id }}/participants"
-              method="POST"
+          {{ $signedUp := false }}
+          {{ range .Tournament.Participants }}
+            {{ $signedUp = (eq .Id $.CurrentUser.Id) }}
+            <li
+              class="list-group-item d-flex justify-content-between participant-list"
             >
-              <input type="submit" class="btn btn-success" value="Sign up" />
-            </form>
-          </li>
+              <div>
+                <img src="{{ .Picture }}" class="me-2 rounded-circle h-100" />
+                {{ .Name }}
+              </div>
+              {{ if $signedUp }}
+                <a
+                  type="button"
+                  class="text-danger"
+                  onclick="deleteParticipant({{ $.Tournament.Id }}, {{ .Id }})"
+                >
+                  <u>Leave</u>
+                </a>
+              {{ end }}
+            </li>
+          {{ end }}
+          {{ if not $signedUp }}
+            <li class="list-group-item">
+              <form
+                action="/tournament/{{ .Tournament.Id }}/participants"
+                method="POST"
+              >
+                <input
+                  type="submit"
+                  class="btn btn-success btn-sm"
+                  value="Sign up"
+                />
+              </form>
+            </li>
+          {{ end }}
         </ul>
       </div>
     </div>
   </div>
 
   <!-- Delete modal -->
-  <div
-    class="modal fade"
-    id="deleteModal"
-    tabindex="-1"
-    aria-labelledby="deleteModalLabel"
-    aria-hidden="true"
-  >
+  <div class="modal fade" id="deleteModal" tabindex="-1">
     <div class="modal-dialog">
       <div class="modal-content">
         <div class="modal-header">
@@ -71,7 +92,6 @@
             type="button"
             class="btn-close"
             data-bs-dismiss="modal"
-            aria-label="Close"
           ></button>
         </div>
         <div class="modal-body">

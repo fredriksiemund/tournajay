@@ -21,10 +21,11 @@ type TournamentType struct {
 }
 
 type Tournament struct {
-	Id          int
-	Title       string
-	Description string
-	DateTime    time.Time
-	Type        TournamentType
-	Creator     User
+	Id           int
+	Title        string
+	Description  string
+	DateTime     time.Time
+	Type         TournamentType
+	Creator      User
+	Participants []User
 }
