@@ -3,7 +3,7 @@
 {{ define "title" }}Create tournament{{ end }}
 
 {{ define "main" }}
-  <h2 class="mt-4">🗽 New tournament 🗽</h2>
+  <h2 class="mt-4">New tournament</h2>
   <form action="/tournament" method="POST">
     {{ with .Form }}
       <div class="row mb-3">
@@ -66,11 +66,10 @@
               is-invalid
             {{ end }}"
           >
-            {{ $exp := or (.Get "type") "4" }}
+            {{ $exp := or (.Get "type") "1" }}
             <option
               value="1"
               {{ if (eq $exp "1") }}selected{{ end }}
-              disabled
             >
               Single elimination
             </option>
@@ -91,6 +90,7 @@
             <option
               value="4"
               {{ if (eq $exp "4") }}selected{{ end }}
+              disabled
             >
               Split round robin followed by single elimination
             </option>

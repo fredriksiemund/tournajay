@@ -4,31 +4,31 @@ DROP TABLE IF EXISTS users;
 DROP TABLE IF EXISTS tournament_types;
 
 CREATE TABLE tournament_types (
-    id serial PRIMARY KEY,
-    title varchar(100) NOT NULL
+    id SERIAL PRIMARY KEY,
+    title VARCHAR(255) NOT NULL
 );
 
 CREATE TABLE users (
-    id varchar(100) PRIMARY KEY,
-    name varchar(100) NOT NULL,
-    email varchar(100) NOT NULL,
-    picture varchar(255) NOT NULL
+    id VARCHAR(255) PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    email VARCHAR(255) NOT NULL,
+    picture VARCHAR(255) NOT NULL
 );
 
 CREATE TABLE tournaments (
-    id serial PRIMARY KEY,
-    title VARCHAR(100) NOT NULL,
+    id SERIAL PRIMARY KEY,
+    title VARCHAR(255) NOT NULL,
     description TEXT DEFAULT '' NOT NULL,
     datetime TIMESTAMP NOT NULL,
     tournament_type_id INT NOT NULL,
-    creator_id varchar(100) NOT NULL,
+    creator_id VARCHAR(255) NOT NULL,
     FOREIGN KEY (tournament_type_id) REFERENCES tournament_types (id),
     FOREIGN KEY (creator_id) REFERENCES users (id)
 );
 
 CREATE TABLE participants (
     tournament_id INT NOT NULL,
-    user_id varchar(100) NOT NULL,
+    user_id VARCHAR(255) NOT NULL,
     FOREIGN KEY (tournament_id) REFERENCES tournaments (id),
     FOREIGN KEY (user_id) REFERENCES users (id),
     PRIMARY KEY(tournament_id, user_id)

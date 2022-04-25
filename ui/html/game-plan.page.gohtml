@@ -5,6 +5,9 @@
 {{ define "main" }}
   {{ template "show-navbar" . }}
   <div class="row mt-4 gy-4">
+    <div class="alert alert-secondary" role="alert">
+      The tournament brackets have not been generated yet!
+    </div>
     <div class="col-lg-6">
       <div class="card">
         <div class="card-header">Group stage</div>
@@ -12,26 +15,26 @@
           <table class="table table-bordered">
             <thead>
               <tr>
-                <th scope="col">Name</th>
-                <th scope="col">Wins</th>
-                <th scope="col">Losses</th>
+                <th scope="col-6">Name</th>
+                <th scope="col-3">Wins</th>
+                <th scope="col-3">Losses</th>
               </tr>
             </thead>
-            <tbody>
+            <tbody class="placeholder-glow">
               <tr>
-                <td>Mark</td>
-                <td>2</td>
-                <td>1</td>
+                <td><span class="placeholder col-4"></span></td>
+                <td><span class="placeholder col-1"></span></td>
+                <td><span class="placeholder col-1"></span></td>
               </tr>
               <tr>
-                <td>Jacob</td>
-                <td>1</td>
-                <td>2</td>
+                <td><span class="placeholder col-3"></span></td>
+                <td><span class="placeholder col-1"></span></td>
+                <td><span class="placeholder col-1"></span></td>
               </tr>
               <tr>
-                <td>Lisa</td>
-                <td>0</td>
-                <td>3</td>
+                <td><span class="placeholder col-5"></span></td>
+                <td><span class="placeholder col-1"></span></td>
+                <td><span class="placeholder col-1"></span></td>
               </tr>
             </tbody>
           </table>
@@ -44,14 +47,14 @@
         <div class="card-header">Playoffs</div>
         <div class="card-body">
           <table class="table table-bordered">
-            <tbody>
+            <tbody class="placeholder-glow">
               <tr>
-                <td>Mark</td>
-                <td>1</td>
+                <td><span class="placeholder col-3"></span></td>
+                <td><span class="placeholder col-1"></span></td>
               </tr>
               <tr>
-                <td>Jacob</td>
-                <td>2</td>
+                <td><span class="placeholder col-5"></span></td>
+                <td><span class="placeholder col-1"></span></td>
               </tr>
             </tbody>
           </table>

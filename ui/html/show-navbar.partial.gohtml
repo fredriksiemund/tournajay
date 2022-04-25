@@ -1,14 +1,14 @@
 {{ define "show-navbar" }}
-  {{ $pathGeneneral := printf "/tournament/%v" .Tournament.Id }}
+  {{ $pathGeneral := printf "/tournament/%v" .Tournament.Id }}
   {{ $pathGamePlan := printf "/tournament/%v/game-plan" .Tournament.Id }}
   <div class="row mt-4">
     <ul class="nav nav-tabs">
       <li class="nav-item">
         <a
-          class="nav-link {{ if (eq .RequestURI $pathGeneneral) }}
+          class="nav-link {{ if (eq .RequestURI $pathGeneral) }}
             active
           {{ end }}"
-          href="{{ $pathGeneneral }}"
+          href="{{ $pathGeneral }}"
         >
           General
         </a>
@@ -20,7 +20,7 @@
           {{ end }}"
           href="{{ $pathGamePlan }}"
         >
-          Game plan
+          Schedule
         </a>
       </li>
     </ul>
