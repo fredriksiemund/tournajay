@@ -87,12 +87,12 @@ func (app *application) showTournament(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	app.render(w, r, "show.page.gohtml", &templateData{
+	app.render(w, r, "general.page.gohtml", &templateData{
 		Tournament: t,
 	})
 }
 
-func (app *application) showGamePlan(w http.ResponseWriter, r *http.Request) {
+func (app *application) showSchedule(w http.ResponseWriter, r *http.Request) {
 	id, err := strconv.Atoi(chi.URLParam(r, "tournamentId"))
 	if err != nil || id < 1 {
 		app.notFound(w)
@@ -109,7 +109,39 @@ func (app *application) showGamePlan(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	app.render(w, r, "game-plan.page.gohtml", &templateData{
+	app.render(w, r, "schedule.page.gohtml", &templateData{
+		Tournament: t,
+	})
+}
+
+func (app *application) createSchedule(w http.ResponseWriter, r *http.Request) {
+	id, err := strconv.Atoi(chi.URLParam(r, "tournamentId"))
+	if err != nil || id < 1 {
+		app.notFound(w)
+		return
+	}
+
+	t, err := app.tournaments.One(id)
+	if err != nil {
+		if errors.Is(err, models.ErrNoRecord) {
+			app.notFound(w)
+		} else {
+			app.serverError(w, err)
+		}
+		return
+	}
+
+	if t.Creator.Id != app.getCurrentUser(r).Id {
+		app.clientError(w, http.StatusForbidden)
+	}
+
+	// Generate teams
+
+	// Generate schedule
+
+	// Insert teams and schedule into database
+
+	app.render(w, r, "schedule.page.gohtml", &templateData{
 		Tournament: t,
 	})
 }

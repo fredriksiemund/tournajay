@@ -1,0 +1,24 @@
+{{ template "base" . }}
+
+{{ define "title" }}{{ .Tournament.Title }}{{ end }}
+
+{{ define "main" }}
+  {{ template "show-navbar" . }}
+  <div class="row mt-4 gy-4">
+    <div
+      class="alert alert-secondary d-flex align-items-center justify-content-between"
+      role="alert"
+    >
+      The tournament brackets have not been generated yet.
+      {{ if (eq .Tournament.Creator.Id .CurrentUser.Id) }}
+        <form action="/tournament/{{ .Tournament.Id }}/schedule" method="POST">
+          <input
+            type="submit"
+            class="btn btn-success btn-sm"
+            value="Generate"
+          />
+        </form>
+      {{ end }}
+    </div>
+  </div>
+{{ end }}

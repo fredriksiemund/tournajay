@@ -1,6 +1,6 @@
 {{ define "show-navbar" }}
   {{ $pathGeneral := printf "/tournament/%v" .Tournament.Id }}
-  {{ $pathGamePlan := printf "/tournament/%v/game-plan" .Tournament.Id }}
+  {{ $pathSchedule := printf "/tournament/%v/schedule" .Tournament.Id }}
   <div class="row mt-4">
     <ul class="nav nav-tabs">
       <li class="nav-item">
@@ -15,10 +15,10 @@
       </li>
       <li class="nav-item">
         <a
-          class="nav-link {{ if (eq .RequestURI $pathGamePlan) }}
+          class="nav-link {{ if (eq .RequestURI $pathSchedule) }}
             active
           {{ end }}"
-          href="{{ $pathGamePlan }}"
+          href="{{ $pathSchedule }}"
         >
           Schedule
         </a>

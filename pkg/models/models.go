@@ -16,8 +16,8 @@ type User struct {
 }
 
 type TournamentType struct {
-	Id    int
-	Title string
+	Id   int
+	Name string
 }
 
 type Tournament struct {

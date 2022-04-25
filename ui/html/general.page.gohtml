@@ -18,7 +18,7 @@
           </div>
 
           <ul class="list-group list-group-flush">
-            <li class="list-group-item">Type: {{ .Type.Title }}</li>
+            <li class="list-group-item">Type: {{ .Type.Name }}</li>
             <li class="list-group-item">When: {{ humanDate .DateTime }}</li>
             {{ if (eq .Creator.Id $.CurrentUser.Id) }}
               <li class="list-group-item">

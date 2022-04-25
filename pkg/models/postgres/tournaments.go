@@ -30,7 +30,7 @@ func (m *TournamentModel) Insert(title, description, datetime, tournamentTypeId,
 
 // This will return a specific tournament based on its id.
 func (m *TournamentModel) One(id int) (*models.Tournament, error) {
-	stmt := `SELECT t.id, t.title, t.description, t.datetime, tt.id, tt.title, u.id, u.name, u.email, u.picture
+	stmt := `SELECT t.id, t.title, t.description, t.datetime, tt.id, tt.name, u.id, u.name, u.email, u.picture
 	FROM tournaments t
 	INNER JOIN tournament_types tt ON t.tournament_type_id = tt.id
 	INNER JOIN users u ON t.creator_id = u.id
@@ -46,7 +46,7 @@ func (m *TournamentModel) One(id int) (*models.Tournament, error) {
 		&t.Description,
 		&t.DateTime,
 		&t.Type.Id,
-		&t.Type.Title,
+		&t.Type.Name,
 		&t.Creator.Id,
 		&t.Creator.Name,
 		&t.Creator.Email,
@@ -91,7 +91,7 @@ func (m *TournamentModel) One(id int) (*models.Tournament, error) {
 
 // This will return all tournaments.
 func (m *TournamentModel) All() ([]*models.Tournament, error) {
-	stmt := `SELECT t.id, t.title, t.description, t.datetime, tt.id, tt.title, u.id, u.name, u.email, u.picture
+	stmt := `SELECT t.id, t.title, t.description, t.datetime, tt.id, tt.name, u.id, u.name, u.email, u.picture
 	FROM tournaments t
 	INNER JOIN tournament_types tt ON t.tournament_type_id = tt.id
 	INNER JOIN users u ON t.creator_id = u.id
@@ -115,7 +115,7 @@ func (m *TournamentModel) All() ([]*models.Tournament, error) {
 			&t.Description,
 			&t.DateTime,
 			&t.Type.Id,
-			&t.Type.Title,
+			&t.Type.Name,
 			&t.Creator.Id,
 			&t.Creator.Name,
 			&t.Creator.Email,

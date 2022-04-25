@@ -1,11 +1,17 @@
+DROP TABLE IF EXISTS game_paths;
+DROP TABLE IF EXISTS results;
+DROP TABLE IF EXISTS result_types;
+DROP TABLE IF EXISTS contestants;
+DROP TABLE IF EXISTS games;
 DROP TABLE IF EXISTS participants;
+DROP TABLE IF EXISTS teams;
 DROP TABLE IF EXISTS tournaments;
 DROP TABLE IF EXISTS users;
 DROP TABLE IF EXISTS tournament_types;
 
 CREATE TABLE tournament_types (
     id SERIAL PRIMARY KEY,
-    title VARCHAR(255) NOT NULL
+    name VARCHAR(255) NOT NULL
 );
 
 CREATE TABLE users (
@@ -26,20 +32,72 @@ CREATE TABLE tournaments (
     FOREIGN KEY (creator_id) REFERENCES users (id)
 );
 
-CREATE TABLE participants (
-    tournament_id INT NOT NULL,
-    user_id VARCHAR(255) NOT NULL,
-    FOREIGN KEY (tournament_id) REFERENCES tournaments (id),
-    FOREIGN KEY (user_id) REFERENCES users (id),
-    PRIMARY KEY(tournament_id, user_id)
+CREATE TABLE teams (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(255)
 );
 
-INSERT INTO tournament_types (title) VALUES 
+CREATE TABLE participants (
+    tournament_id INT,
+    user_id VARCHAR(255),
+    team_id INT,
+    FOREIGN KEY (tournament_id) REFERENCES tournaments (id),
+    FOREIGN KEY (user_id) REFERENCES users (id),
+    FOREIGN KEY (team_id) REFERENCES teams (id),
+    PRIMARY KEY (tournament_id, user_id)
+);
+
+CREATE TABLE games (
+    id SERIAL PRIMARY KEY,
+    tournament_id INT NOT NULL,
+    FOREIGN KEY (tournament_id) REFERENCES tournaments(id)
+);
+
+CREATE TABLE contestants (
+    game_id INT,
+    team_id INT,
+    FOREIGN KEY (game_id) REFERENCES games(id),
+    FOREIGN KEY (team_id) REFERENCES teams(id),
+    PRIMARY KEY (game_id, team_id)
+);
+
+CREATE TABLE result_types (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(255) NOT NULL
+);
+
+CREATE TABLE results (
+    game_id INT,
+    team_id INT,
+    result_type_id INT,
+    FOREIGN KEY (game_id) REFERENCES games(id),
+    FOREIGN KEY (team_id) REFERENCES teams(id),
+    FOREIGN KEY (result_type_id) REFERENCES result_types(id),
+    PRIMARY KEY (game_id, team_id, result_type_id)
+);
+
+CREATE TABLE game_paths (
+    from_game_id INT,
+    to_game_id INT,
+    result_type_id INT,
+    FOREIGN KEY (from_game_id) REFERENCES games(id),
+    FOREIGN KEY (to_game_id) REFERENCES games(id),
+    FOREIGN KEY (result_type_id) REFERENCES result_types(id),
+    PRIMARY KEY (from_game_id, to_game_id, result_type_id)
+);
+
+-- STATIC DATA --
+INSERT INTO tournament_types (name) VALUES 
     ('Single elimination'),
     ('Double elimination'),
     ('Straight Round Robin'),
     ('Split round robin followed by single elimination');
 
+INSERT INTO result_types (name) VALUES
+    ('First'),
+    ('Second');
+
+-- TEST DATA --
 INSERT INTO users values
     ('1', 'John McKelly', 'temp@example.com', 'https://randomuser.me/api/portraits/lego/1.jpg'),
     ('2', 'Sara Jonsson', 'temp@example.com', 'https://randomuser.me/api/portraits/lego/2.jpg'),

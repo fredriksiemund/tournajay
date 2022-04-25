@@ -12,7 +12,7 @@ type TournamentTypeModel struct {
 }
 
 func (m *TournamentTypeModel) All() ([]*models.TournamentType, error) {
-	stmt := `SELECT * FROM tournament_types`
+	stmt := `SELECT id, name FROM tournament_types`
 
 	rows, err := m.Db.Query(context.Background(), stmt)
 	if err != nil {
@@ -26,7 +26,7 @@ func (m *TournamentTypeModel) All() ([]*models.TournamentType, error) {
 	for rows.Next() {
 		t := &models.TournamentType{}
 
-		err = rows.Scan(&t.Id, &t.Title)
+		err = rows.Scan(&t.Id, &t.Name)
 		if err != nil {
 			return nil, err
 		}
