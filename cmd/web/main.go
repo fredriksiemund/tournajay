@@ -25,6 +25,7 @@ type application struct {
 	infoLog         *log.Logger
 	participants    *postgres.ParticipantModel
 	session         *sessions.Session
+	teams           *postgres.TeamModel
 	templateCache   map[string]*template.Template
 	tournaments     *postgres.TournamentModel
 	tournamentTypes *postgres.TournamentTypeModel
@@ -65,6 +66,7 @@ func main() {
 		infoLog:         infoLog,
 		participants:    &postgres.ParticipantModel{Db: db},
 		session:         session,
+		teams:           &postgres.TeamModel{Db: db},
 		templateCache:   templateCache,
 		tournaments:     &postgres.TournamentModel{Db: db},
 		tournamentTypes: &postgres.TournamentTypeModel{Db: db},

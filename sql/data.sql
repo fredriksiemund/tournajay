@@ -34,31 +34,34 @@ CREATE TABLE tournaments (
 
 CREATE TABLE teams (
     id SERIAL PRIMARY KEY,
-    name VARCHAR(255)
+    tournament_id INT NOT NULL,
+    name VARCHAR(255) NOT NULL,
+    FOREIGN KEY (tournament_id) REFERENCES tournaments (id)
 );
 
 CREATE TABLE participants (
     tournament_id INT,
     user_id VARCHAR(255),
     team_id INT,
+    PRIMARY KEY (tournament_id, user_id),
     FOREIGN KEY (tournament_id) REFERENCES tournaments (id),
     FOREIGN KEY (user_id) REFERENCES users (id),
-    FOREIGN KEY (team_id) REFERENCES teams (id),
-    PRIMARY KEY (tournament_id, user_id)
+    FOREIGN KEY (team_id) REFERENCES teams (id)
 );
 
 CREATE TABLE games (
     id SERIAL PRIMARY KEY,
     tournament_id INT NOT NULL,
+    depth INT NOT NULL,
     FOREIGN KEY (tournament_id) REFERENCES tournaments(id)
 );
 
 CREATE TABLE contestants (
     game_id INT,
     team_id INT,
+    PRIMARY KEY (game_id, team_id),
     FOREIGN KEY (game_id) REFERENCES games(id),
-    FOREIGN KEY (team_id) REFERENCES teams(id),
-    PRIMARY KEY (game_id, team_id)
+    FOREIGN KEY (team_id) REFERENCES teams(id)
 );
 
 CREATE TABLE result_types (
@@ -70,20 +73,20 @@ CREATE TABLE results (
     game_id INT,
     team_id INT,
     result_type_id INT,
+    PRIMARY KEY (game_id, team_id, result_type_id),
     FOREIGN KEY (game_id) REFERENCES games(id),
     FOREIGN KEY (team_id) REFERENCES teams(id),
-    FOREIGN KEY (result_type_id) REFERENCES result_types(id),
-    PRIMARY KEY (game_id, team_id, result_type_id)
+    FOREIGN KEY (result_type_id) REFERENCES result_types(id)
 );
 
 CREATE TABLE game_paths (
     from_game_id INT,
     to_game_id INT,
     result_type_id INT,
+    PRIMARY KEY (from_game_id, to_game_id, result_type_id),
     FOREIGN KEY (from_game_id) REFERENCES games(id),
     FOREIGN KEY (to_game_id) REFERENCES games(id),
-    FOREIGN KEY (result_type_id) REFERENCES result_types(id),
-    PRIMARY KEY (from_game_id, to_game_id, result_type_id)
+    FOREIGN KEY (result_type_id) REFERENCES result_types(id)
 );
 
 -- STATIC DATA --
@@ -115,6 +118,8 @@ INSERT INTO tournaments (title, description, datetime, tournament_type_id, creat
     ('Super Smash Tournament', 'With supporting text below as a natural lead-in to additional content!', '2022-05-09 19:00', 4, '2');
 
 INSERT INTO participants values 
+    (1, 1), 
+    (1, 2),
     (2, 1),
     (2, 2),
     (2, 3),

@@ -6,48 +6,48 @@ import (
 )
 
 type TeamNode struct {
-	left   *TeamNode
-	right  *TeamNode
-	teamId int
+	Left   *TeamNode
+	Right  *TeamNode
+	TeamId int
 }
 
 func (t *TeamNode) insert() []*TeamNode {
-	t.left = &TeamNode{teamId: -1}
-	t.right = &TeamNode{teamId: -1}
-	return []*TeamNode{t.left, t.right}
+	t.Left = &TeamNode{TeamId: -1}
+	t.Right = &TeamNode{TeamId: -1}
+	return []*TeamNode{t.Left, t.Right}
 }
 
-func print(w io.Writer, node *TeamNode, ns int, ch rune) {
+func Print(w io.Writer, node *TeamNode, ns int, ch rune) {
 	if node == nil {
 		return
 	}
 	for i := 0; i < ns; i++ {
 		fmt.Fprint(w, " ")
 	}
-	fmt.Fprintf(w, "%c:%v\n", ch, node.teamId)
-	print(w, node.left, ns+2, 'L')
-	print(w, node.right, ns+2, 'R')
+	fmt.Fprintf(w, "%c:%v\n", ch, node.TeamId)
+	Print(w, node.Left, ns+2, 'L')
+	Print(w, node.Right, ns+2, 'R')
 }
 
-func createSingleEliminationTrounament(teamIds []int) *TeamNode {
-	bracket := &TeamNode{}
-	leafNodes := []*TeamNode{bracket}
+func NewSingleElimination(teamIds []int) *TeamNode {
+	winnersBracket := &TeamNode{TeamId: -1}
+	leafNodes := []*TeamNode{winnersBracket}
 
 	// While length of leafNodes is less than teamIds
-	for len(leafNodes) != len(teamIds) {
+	for len(leafNodes) < len(teamIds) {
 		// Pop first leafNode
 		nextLeafNode := leafNodes[0]
+		leafNodes = leafNodes[1:]
 		// Create new leaf nodes
 		newLeafNodes := nextLeafNode.insert()
 		// Append the leaf nodes to the leafNode array
-		leafNodes = leafNodes[1:]
 		leafNodes = append(leafNodes, newLeafNodes...)
 	}
 
 	// Populate leafNodes
 	for i, leafNode := range leafNodes {
-		leafNode.teamId = teamIds[i]
+		leafNode.TeamId = teamIds[i]
 	}
 
-	return bracket
+	return winnersBracket
 }

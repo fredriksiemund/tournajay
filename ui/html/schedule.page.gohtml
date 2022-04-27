@@ -10,15 +10,11 @@
       role="alert"
     >
       The tournament brackets have not been generated yet.
-      {{ if (eq .Tournament.Creator.Id .CurrentUser.Id) }}
-        <form action="/tournament/{{ .Tournament.Id }}/schedule" method="POST">
-          <input
-            type="submit"
-            class="btn btn-success btn-sm"
-            value="Generate"
-          />
-        </form>
-      {{ end }}
+      {{/* {{ if (eq .Tournament.Creator.Id .CurrentUser.Id) }} */}}
+      <form action="/tournament/{{ .Tournament.Id }}/schedule" method="POST">
+        <input type="submit" class="btn btn-success btn-sm" value="Generate" />
+      </form>
+      {{/* {{ end }} */}}
     </div>
   </div>
 {{ end }}

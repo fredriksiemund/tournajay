@@ -4,14 +4,17 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"math"
 	"net/http"
 	"net/url"
+	"os"
 	"strconv"
 	"time"
 	"unicode/utf8"
 
 	"github.com/fredriksiemund/tournament-planner/pkg/forms"
 	"github.com/fredriksiemund/tournament-planner/pkg/models"
+	"github.com/fredriksiemund/tournament-planner/pkg/tournaments"
 	"github.com/go-chi/chi/v5"
 	"google.golang.org/api/idtoken"
 )
@@ -131,15 +134,31 @@ func (app *application) createSchedule(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if t.Creator.Id != app.getCurrentUser(r).Id {
-		app.clientError(w, http.StatusForbidden)
-	}
+	// if t.Creator.Id != app.getCurrentUser(r).Id {
+	// 	app.clientError(w, http.StatusForbidden)
+	// 	return
+	// }
 
 	// Generate teams
+	nbrOfTeams := int(math.Ceil(float64(len(t.Participants)) / 2.0))
+	teamIds, err := app.teams.Insert(nbrOfTeams, t.Id)
+	if err != nil {
+		app.serverError(w, err)
+		return
+	}
+
+	// Asign teams
+	err = app.participants.AssignTeams(t.Id, t.Participants, teamIds)
+	if err != nil {
+		app.serverError(w, err)
+		return
+	}
 
 	// Generate schedule
+	bracket := tournaments.NewSingleElimination(teamIds)
+	tournaments.Print(os.Stdout, bracket, 0, 'M')
 
-	// Insert teams and schedule into database
+	// Insert schedule into database
 
 	app.render(w, r, "schedule.page.gohtml", &templateData{
 		Tournament: t,

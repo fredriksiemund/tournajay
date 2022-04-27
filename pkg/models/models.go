@@ -29,3 +29,14 @@ type Tournament struct {
 	Creator      User
 	Participants []User
 }
+
+type Team struct {
+	Id      int
+	Name    string
+	Members []User
+}
+
+type Game struct {
+	Id          int
+	Contestants []Team
+}
