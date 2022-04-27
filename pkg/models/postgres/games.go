@@ -69,3 +69,17 @@ func (m *GameModel) InsertSingleEliminationGames(tournamentId int, games map[int
 
 	return nil
 }
+
+func (m *GameModel) Exists(tournamentId int) (bool, error) {
+	stmt := "SELECT EXISTS (SELECT 1 from games WHERE tournament_id = $1)"
+
+	row := m.Db.QueryRow(ctx, stmt, tournamentId)
+
+	var exists bool
+	err := row.Scan(&exists)
+	if err != nil {
+		return false, err
+	}
+
+	return exists, nil
+}

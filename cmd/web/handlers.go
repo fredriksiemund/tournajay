@@ -138,6 +138,16 @@ func (app *application) createSchedule(w http.ResponseWriter, r *http.Request) {
 	// 	return
 	// }
 
+	// Check if a game already exists
+	exists, err := app.games.Exists(id)
+	if err != nil {
+		app.serverError(w, err)
+		return
+	} else if exists {
+		app.clientError(w, http.StatusConflict)
+		return
+	}
+
 	// Generate teams
 	nbrOfTeams := int(math.Ceil(float64(len(t.Participants)) / 2.0))
 	teamIds, err := app.teams.Insert(nbrOfTeams, t.Id)
