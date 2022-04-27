@@ -154,7 +154,11 @@ func (app *application) createSchedule(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Generate schedule
-	bracket := tournaments.NewSingleElimination(teamIds)
+	bracket, err := tournaments.NewSingleElimination(teamIds)
+	if err != nil {
+		app.serverError(w, err)
+		return
+	}
 
 	// Insert schedule into database
 	app.games.InsertSingleEliminationGames(t.Id, bracket)

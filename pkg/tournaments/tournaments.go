@@ -1,9 +1,6 @@
 package tournaments
 
-import (
-	"fmt"
-	"io"
-)
+import "github.com/fredriksiemund/tournament-planner/pkg/models"
 
 type TeamNode struct {
 	Left   *TeamNode
@@ -17,19 +14,7 @@ func (t *TeamNode) insert() []*TeamNode {
 	return []*TeamNode{t.Left, t.Right}
 }
 
-func Print(w io.Writer, node *TeamNode, ns int, ch rune) {
-	if node == nil {
-		return
-	}
-	for i := 0; i < ns; i++ {
-		fmt.Fprint(w, " ")
-	}
-	fmt.Fprintf(w, "%c:%v\n", ch, node.TeamId)
-	Print(w, node.Left, ns+2, 'L')
-	Print(w, node.Right, ns+2, 'R')
-}
-
-func NewSingleElimination(teamIds []int) *TeamNode {
+func generateTeamTree(teamIds []int) *TeamNode {
 	winnersBracket := &TeamNode{TeamId: -1}
 	leafNodes := []*TeamNode{winnersBracket}
 
@@ -50,4 +35,57 @@ func NewSingleElimination(teamIds []int) *TeamNode {
 	}
 
 	return winnersBracket
+}
+
+type GameNode struct {
+	Id          int
+	Contestants []int
+	Left        *GameNode
+	Right       *GameNode
+}
+
+type gameTree struct {
+	plan map[int][]*GameNode
+}
+
+func (g gameTree) generateGameTree(node *TeamNode, depth int) (*GameNode, error) {
+	if node.Left == nil && node.Right == nil {
+		return nil, nil
+	} else if node.Left == nil || node.Right == nil {
+		return nil, models.ErrInvalidTree
+	}
+
+	leftGame, err := g.generateGameTree(node.Left, depth+1)
+	if err != nil {
+		return nil, err
+	}
+
+	rightGame, err := g.generateGameTree(node.Right, depth+1)
+	if err != nil {
+		return nil, err
+	}
+
+	newGame := &GameNode{Left: leftGame, Right: rightGame}
+	if node.Left.TeamId != -1 {
+		newGame.Contestants = append(newGame.Contestants, node.Left.TeamId)
+	}
+	if node.Right.TeamId != -1 {
+		newGame.Contestants = append(newGame.Contestants, node.Right.TeamId)
+	}
+
+	g.plan[depth] = append(g.plan[depth], newGame)
+
+	return newGame, nil
+}
+
+func NewSingleElimination(teamIds []int) (map[int][]*GameNode, error) {
+	teamTree := generateTeamTree(teamIds)
+
+	g := &gameTree{plan: make(map[int][]*GameNode)}
+	_, err := g.generateGameTree(teamTree, 0)
+	if err != nil {
+		return nil, err
+	}
+
+	return g.plan, nil
 }
