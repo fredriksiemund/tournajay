@@ -2,8 +2,10 @@ package postgres
 
 import (
 	"fmt"
+	"sort"
 	"strings"
 
+	"github.com/fredriksiemund/tournament-planner/pkg/models"
 	"github.com/fredriksiemund/tournament-planner/pkg/tournaments"
 	"github.com/jackc/pgx/v4"
 )
@@ -12,93 +14,116 @@ type GameModel struct {
 	Db *pgx.Conn
 }
 
+type game struct {
+	id          int
+	contestants []int
+	left        *game
+	right       *game
+}
+
 type games struct {
 	tournamentId int
+	plan         map[int][]*game
 }
 
-func (g games) iterate(node *tournaments.TeamNode, depth int, db *pgx.Conn) int {
-	var previousGameIds []int
+func (g games) iterate(node *tournaments.TeamNode, depth int) (*game, error) {
 	if node.Left == nil && node.Right == nil {
-		return -1
-	} else if node.Left != nil {
-		prevGame := g.iterate(node.Left, depth+1, db)
-		if prevGame != -1 {
-			previousGameIds = append(previousGameIds, prevGame)
-		}
-	} else if node.Right != nil {
-		prevGame := g.iterate(node.Right, depth+1, db)
-		if prevGame != -1 {
-			previousGameIds = append(previousGameIds, prevGame)
-		}
+		return nil, nil
+	} else if node.Left == nil || node.Right == nil {
+		return nil, models.ErrInvalidTree
 	}
 
-	// Create a game with the team on the left and right side
-	stmt := "INSERT INTO games (tournament_id, depth) VALUES ($1, $2) RETURNING id"
-	row := db.QueryRow(ctx, stmt, g.tournamentId, depth)
-
-	var id int
-	err := row.Scan(&id)
+	leftGame, err := g.iterate(node.Left, depth+1)
 	if err != nil {
-		return -1
+		return nil, err
 	}
 
-	// Insert contestants
-	var contestants []int
+	rightGame, err := g.iterate(node.Right, depth+1)
+	if err != nil {
+		return nil, err
+	}
+
+	newGame := &game{left: leftGame, right: rightGame}
 	if node.Left.TeamId != -1 {
-		contestants = append(contestants, node.Left.TeamId)
-	} else if node.Right.TeamId != -1 {
-		contestants = append(contestants, node.Right.TeamId)
+		newGame.contestants = append(newGame.contestants, node.Left.TeamId)
 	}
-	if len(contestants) > 0 {
-		var placeholders []string
-		var values []interface{}
-		for i := 0; i < len(contestants); i++ {
-			placeholders = append(placeholders, fmt.Sprintf("($%d, $%d)", 2*i+1, 2*i+2))
-			values = append(values, id, contestants[i])
-		}
-		stmt = fmt.Sprintf("INSERT INTO contestants (game_id, team_id) VALUES %s", strings.Join(placeholders, ", "))
-		_, err := db.Exec(ctx, stmt, values...)
-		if err != nil {
-			return -1
-		}
+	if node.Right.TeamId != -1 {
+		newGame.contestants = append(newGame.contestants, node.Right.TeamId)
 	}
 
-	// Insert path
+	g.plan[depth] = append(g.plan[depth], newGame)
 
-	return id
+	return newGame, nil
 }
 
-func (m *GameModel) InsertSingleEliminationGames(finalNode *tournaments.TeamNode) ([]int, error) {
-	// var placeholders []string
-	// var values []interface{}
+func (m *GameModel) InsertSingleEliminationGames(tournamentId int, finalNode *tournaments.TeamNode) error {
+	g := &games{tournamentId: tournamentId, plan: make(map[int][]*game)}
 
-	// for i := 0; i < nbrOfTeams; i++ {
-	// 	placeholders = append(placeholders, fmt.Sprintf("($%d, $%d)", 2*i+1, 2*i+2))
-	// 	values = append(values, tournamentId, fmt.Sprintf("Team %d", i+1))
-	// }
+	_, err := g.iterate(finalNode, 0)
+	if err != nil {
+		return err
+	}
 
-	// stmt := fmt.Sprintf("INSERT INTO teams (tournament_id, name) VALUES %s RETURNING id", strings.Join(placeholders, ", "))
+	// Sort keys
+	depths := make([]int, 0, len(g.plan))
+	for k := range g.plan {
+		depths = append(depths, k)
+	}
+	sort.Sort(sort.Reverse(sort.IntSlice(depths)))
 
-	// rows, err := m.Db.Query(ctx, stmt, values...)
-	// if err != nil {
-	// 	return nil, err
-	// }
+	for _, depth := range depths {
+		for _, game := range g.plan[depth] {
+			// Insert game
+			stmt := "INSERT INTO games (tournament_id, depth) VALUES ($1, $2) RETURNING id"
+			row := m.Db.QueryRow(ctx, stmt, tournamentId, depth)
 
-	// defer rows.Close()
+			var id int
+			err := row.Scan(&id)
+			if err != nil {
+				return err
+			}
+			game.id = id
 
-	// var ids []int
-	// for rows.Next() {
-	// 	var id int
-	// 	err = rows.Scan(&id)
-	// 	if err != nil {
-	// 		return nil, err
-	// 	}
-	// 	ids = append(ids, id)
-	// }
+			// Insert contestants
+			if len(game.contestants) > 0 {
+				var placeholders []string
+				var values []interface{}
+				for i := 0; i < len(game.contestants); i++ {
+					placeholders = append(placeholders, fmt.Sprintf("($%d, $%d)", 2*i+1, 2*i+2))
+					values = append(values, id, game.contestants[i])
+				}
+				stmt = fmt.Sprintf("INSERT INTO contestants (game_id, team_id) VALUES %s", strings.Join(placeholders, ", "))
+				_, err := m.Db.Exec(ctx, stmt, values...)
+				if err != nil {
+					return err
+				}
+			}
 
-	// if err = rows.Err(); err != nil {
-	// 	return nil, err
-	// }
+			// Insert path
+			if game.left != nil {
+				stmt = "INSERT INTO game_paths (from_game_id, to_game_id, result_type_id) VALUES ($1, $2, $3)"
+				_, err := m.Db.Exec(ctx, stmt, game.left.id, game.id, 1)
+				if err != nil {
+					return err
+				}
+			}
+			if game.right != nil {
+				stmt = "INSERT INTO game_paths (from_game_id, to_game_id, result_type_id) VALUES ($1, $2, $3)"
+				_, err := m.Db.Exec(ctx, stmt, game.right.id, game.id, 1)
+				if err != nil {
+					return err
+				}
+			}
+		}
+	}
 
-	return nil, nil
+	for _, v := range depths {
+		fmt.Printf("%d ->", v)
+		for _, va := range g.plan[v] {
+			fmt.Printf(" %v", *va)
+		}
+		fmt.Println()
+	}
+
+	return nil
 }

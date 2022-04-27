@@ -65,7 +65,7 @@ CREATE TABLE contestants (
 );
 
 CREATE TABLE result_types (
-    id SERIAL PRIMARY KEY,
+    id INT PRIMARY KEY,
     name VARCHAR(255) NOT NULL
 );
 
@@ -96,9 +96,9 @@ INSERT INTO tournament_types (name) VALUES
     ('Straight Round Robin'),
     ('Split round robin followed by single elimination');
 
-INSERT INTO result_types (name) VALUES
-    ('First'),
-    ('Second');
+INSERT INTO result_types (id, name) VALUES
+    (1, 'First'),
+    (2, 'Second');
 
 -- TEST DATA --
 INSERT INTO users values

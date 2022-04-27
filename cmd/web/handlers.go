@@ -7,7 +7,6 @@ import (
 	"math"
 	"net/http"
 	"net/url"
-	"os"
 	"strconv"
 	"time"
 	"unicode/utf8"
@@ -156,9 +155,9 @@ func (app *application) createSchedule(w http.ResponseWriter, r *http.Request) {
 
 	// Generate schedule
 	bracket := tournaments.NewSingleElimination(teamIds)
-	tournaments.Print(os.Stdout, bracket, 0, 'M')
 
 	// Insert schedule into database
+	app.games.InsertSingleEliminationGames(t.Id, bracket)
 
 	app.render(w, r, "schedule.page.gohtml", &templateData{
 		Tournament: t,

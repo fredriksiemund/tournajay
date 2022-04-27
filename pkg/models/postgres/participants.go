@@ -39,17 +39,15 @@ func (m *ParticipantModel) AssignTeams(tournamentId int, participants []models.U
 		values = append(values, tournamentId, participants[i].Id, teamsIds[i%len(teamsIds)])
 	}
 
-	stmt := fmt.Sprintf("UPDATE participants SET team_id = tmp.team_id FROM (VALUES %s) AS tmp(tournament_id, user_id, team_id) WHERE participants.tournament_id = tmp.tournament_id AND participants.user_id = tmp.user_id", strings.Join(placeholders, ", "))
-	fmt.Println(stmt)
-	for i := 0; i < len(participants); i++ {
-		fmt.Printf("%v: %v %v %v\n", i, values[3*i], values[3*i+1], values[3*i+2])
-		fmt.Printf("%v: %T %T %T\n", i, values[3*i], values[3*i+1], values[3*i+2])
-	}
-	fmt.Println()
+	stmt := fmt.Sprintf(
+		`UPDATE participants SET team_id = tmp.team_id
+		FROM (VALUES %s) AS tmp(tournament_id, user_id, team_id) 
+		WHERE participants.tournament_id = tmp.tournament_id AND participants.user_id = tmp.user_id`,
+		strings.Join(placeholders, ", "),
+	)
 
 	_, err := m.Db.Exec(ctx, stmt, values...)
 	if err != nil {
-		fmt.Println(err)
 		return err
 	}
 

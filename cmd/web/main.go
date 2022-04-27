@@ -22,6 +22,7 @@ const googleClientId = "879593153148-6pho9arld8k17qol30c23hlr02i8qeru.apps.googl
 
 type application struct {
 	errorLog        *log.Logger
+	games           *postgres.GameModel
 	infoLog         *log.Logger
 	participants    *postgres.ParticipantModel
 	session         *sessions.Session
@@ -63,6 +64,7 @@ func main() {
 	// Establishing the dependencies for the handlers (depenency injection)
 	app := &application{
 		errorLog:        errorLog,
+		games:           &postgres.GameModel{Db: db},
 		infoLog:         infoLog,
 		participants:    &postgres.ParticipantModel{Db: db},
 		session:         session,
