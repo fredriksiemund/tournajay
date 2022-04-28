@@ -1,6 +1,11 @@
 package tournaments
 
-import "github.com/fredriksiemund/tournament-planner/pkg/models"
+import (
+	"fmt"
+	"sort"
+
+	"github.com/fredriksiemund/tournament-planner/pkg/models"
+)
 
 type TeamNode struct {
 	Left   *TeamNode
@@ -88,4 +93,55 @@ func NewSingleElimination(teamIds []int) (map[int][]*GameNode, error) {
 	}
 
 	return g.plan, nil
+}
+
+type GameTemplate struct {
+	Id          int
+	Contestants []string
+}
+
+type RoundTemplate struct {
+	Title string
+	Games []GameTemplate
+}
+
+func roundName(depth int, maxDepth int) string {
+	if depth == 0 {
+		return "Final"
+	} else if depth == 1 {
+		return "Semi finals"
+	} else {
+		return fmt.Sprintf("Round %d", maxDepth-depth+1)
+	}
+}
+
+func SingleEliminationTemplate(games map[int][]*models.Game, teams map[int]*models.Team) []*RoundTemplate {
+	depths := make([]int, 0, len(games))
+	for k := range games {
+		depths = append(depths, k)
+	}
+	sort.Sort(sort.Reverse(sort.IntSlice(depths)))
+
+	var rounds []*RoundTemplate
+	for _, depth := range depths {
+		round := &RoundTemplate{Title: roundName(depth, depths[0])}
+
+		for _, g := range games[depth] {
+			game := &GameTemplate{Id: g.Id}
+
+			for i, id := range g.TeamIds {
+				if id != -1 {
+					game.Contestants = append(game.Contestants, teams[id].Name)
+				} else {
+					game.Contestants = append(game.Contestants, fmt.Sprintf("Winner of #%d", g.PreviousGameIds[i]))
+				}
+			}
+
+			round.Games = append(round.Games, *game)
+		}
+
+		rounds = append(rounds, round)
+	}
+
+	return rounds
 }

@@ -111,8 +111,24 @@ func (app *application) showSchedule(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	teams, err := app.teams.All(t.Id)
+	if err != nil {
+		app.serverError(w, err)
+		return
+	}
+
+	games, err := app.games.All(t.Id)
+	if err != nil {
+		app.serverError(w, err)
+		return
+	}
+
+	rounds := tournaments.SingleEliminationTemplate(games, teams)
+
 	app.render(w, r, "schedule.page.gohtml", &templateData{
+		Teams:      teams,
 		Tournament: t,
+		Rounds:     rounds,
 	})
 }
 
@@ -171,11 +187,13 @@ func (app *application) createSchedule(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Insert schedule into database
-	app.games.InsertSingleEliminationGames(t.Id, bracket)
+	err = app.games.InsertSingleEliminationGames(t.Id, bracket)
+	if err != nil {
+		app.serverError(w, err)
+		return
+	}
 
-	app.render(w, r, "schedule.page.gohtml", &templateData{
-		Tournament: t,
-	})
+	http.Redirect(w, r, fmt.Sprintf("/tournament/%d/schedule", id), http.StatusSeeOther)
 }
 
 func (app *application) removeTournament(w http.ResponseWriter, r *http.Request) {

@@ -5,16 +5,67 @@
 {{ define "main" }}
   {{ template "show-navbar" . }}
   <div class="row mt-4 gy-4">
-    <div
-      class="alert alert-secondary d-flex align-items-center justify-content-between"
-      role="alert"
-    >
-      The tournament brackets have not been generated yet.
-      {{/* {{ if (eq .Tournament.Creator.Id .CurrentUser.Id) }} */}}
-      <form action="/tournament/{{ .Tournament.Id }}/schedule" method="POST">
-        <input type="submit" class="btn btn-success btn-sm" value="Generate" />
-      </form>
-      {{/* {{ end }} */}}
-    </div>
+    {{ if .Rounds }}
+      <div class="col-lg-6">
+        {{ range .Rounds }}
+          <div class="mb-4">
+            <h2>{{ .Title }}</h2>
+            <div class="mt-4">
+              {{ range .Games }}
+                <div class="card mb-4">
+                  <div class="card-header">Game #{{ .Id }}</div>
+                  <div class="card-body">
+                    {{ index .Contestants 0 }} vs
+                    {{ index .Contestants 1 }}
+                  </div>
+                </div>
+              {{ end }}
+            </div>
+          </div>
+        {{ end }}
+      </div>
+
+      <div class="col-lg-6">
+        {{ range $key, $value := .Teams }}
+          <div class="card mb-4">
+            <div class="card-header">{{ $value.Name }}</div>
+            <ul class="list-group list-group-flush">
+              {{ range $value.Members }}
+                <li
+                  class="list-group-item d-flex justify-content-between participant-list"
+                >
+                  <div>
+                    <img
+                      src="{{ .Picture }}"
+                      class="me-2 rounded-circle h-100"
+                    />
+                    {{ .Name }}
+                  </div>
+                </li>
+              {{ end }}
+            </ul>
+          </div>
+        {{ end }}
+      </div>
+    {{ else }}
+      <div
+        class="alert alert-secondary d-flex align-items-center justify-content-between"
+        role="alert"
+      >
+        The tournament brackets have not been generated yet.
+        {{ if (eq .Tournament.Creator.Id .CurrentUser.Id) }}
+          <form
+            action="/tournament/{{ .Tournament.Id }}/schedule"
+            method="POST"
+          >
+            <input
+              type="submit"
+              class="btn btn-success btn-sm"
+              value="Generate"
+            />
+          </form>
+        {{ end }}
+      </div>
+    {{ end }}
   </div>
 {{ end }}

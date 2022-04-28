@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/fredriksiemund/tournament-planner/pkg/models"
 	"github.com/jackc/pgx/v4"
 )
 
@@ -44,4 +45,45 @@ func (m *TeamModel) Insert(nbrOfTeams int, tournamentId int) ([]int, error) {
 	}
 
 	return ids, nil
+}
+
+func (m *TeamModel) All(tournamentId int) (map[int]*models.Team, error) {
+	stmt := `SELECT u.id, u.name, u.email, u.picture, t.id, t.name FROM participants p
+	INNER JOIN users u ON p.user_id = u.id
+	INNER JOIN teams t ON p.team_id = t.id
+	WHERE p.tournament_id = $1
+	ORDER BY t.id`
+
+	rows, err := m.Db.Query(ctx, stmt, tournamentId)
+	if err != nil {
+		return nil, err
+	}
+
+	defer rows.Close()
+
+	teams := make(map[int]*models.Team)
+
+	for rows.Next() {
+		t := &models.Team{}
+		u := &models.User{}
+
+		err = rows.Scan(&u.Id, &u.Name, &u.Email, &u.Picture, &t.Id, &t.Name)
+		if err != nil {
+			return nil, err
+		}
+
+		team, exists := teams[t.Id]
+		if exists {
+			team.Members = append(team.Members, *u)
+		} else {
+			t.Members = append(t.Members, *u)
+			teams[t.Id] = t
+		}
+	}
+
+	if err = rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return teams, nil
 }

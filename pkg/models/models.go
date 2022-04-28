@@ -38,6 +38,8 @@ type Team struct {
 }
 
 type Game struct {
-	Id          int
-	Contestants []Team
+	Id              int
+	TeamIds         []int
+	PreviousGameIds []int
+	Depth           int
 }

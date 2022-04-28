@@ -1,7 +1,5 @@
 DROP TABLE IF EXISTS game_paths;
-DROP TABLE IF EXISTS results;
 DROP TABLE IF EXISTS result_types;
-DROP TABLE IF EXISTS contestants;
 DROP TABLE IF EXISTS games;
 DROP TABLE IF EXISTS participants;
 DROP TABLE IF EXISTS teams;
@@ -56,38 +54,24 @@ CREATE TABLE games (
     FOREIGN KEY (tournament_id) REFERENCES tournaments(id)
 );
 
-CREATE TABLE contestants (
-    game_id INT,
-    team_id INT,
-    PRIMARY KEY (game_id, team_id),
-    FOREIGN KEY (game_id) REFERENCES games(id),
-    FOREIGN KEY (team_id) REFERENCES teams(id)
-);
-
 CREATE TABLE result_types (
     id INT PRIMARY KEY,
     name VARCHAR(255) NOT NULL
 );
 
-CREATE TABLE results (
-    game_id INT,
-    team_id INT,
-    result_type_id INT,
-    PRIMARY KEY (game_id, team_id, result_type_id),
-    FOREIGN KEY (game_id) REFERENCES games(id),
-    FOREIGN KEY (team_id) REFERENCES teams(id),
-    FOREIGN KEY (result_type_id) REFERENCES result_types(id)
-);
-
 CREATE TABLE game_paths (
+    id SERIAL PRIMARY KEY,
     from_game_id INT,
-    to_game_id INT,
-    result_type_id INT,
-    PRIMARY KEY (from_game_id, to_game_id, result_type_id),
+    to_game_id INT NOT NULL,
+    result_type_id INT NOT NULL,
+    team_id INT,
     FOREIGN KEY (from_game_id) REFERENCES games(id),
     FOREIGN KEY (to_game_id) REFERENCES games(id),
-    FOREIGN KEY (result_type_id) REFERENCES result_types(id)
+    FOREIGN KEY (result_type_id) REFERENCES result_types(id),
+    FOREIGN KEY (team_id) REFERENCES teams(id),
+    CONSTRAINT team_or_prev_game CHECK (from_game_id IS NOT NULL OR team_id IS NOT NULL)
 );
+
 
 -- STATIC DATA --
 INSERT INTO tournament_types (name) VALUES 

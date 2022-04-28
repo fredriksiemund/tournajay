@@ -7,14 +7,17 @@ import (
 
 	"github.com/fredriksiemund/tournament-planner/pkg/forms"
 	"github.com/fredriksiemund/tournament-planner/pkg/models"
+	"github.com/fredriksiemund/tournament-planner/pkg/tournaments"
 )
 
 type templateData struct {
 	CurrentUser *models.User
 	Form        *forms.Form
+	Teams       map[int]*models.Team
 	Tournament  *models.Tournament
 	Tournaments []*models.Tournament
 	RequestURI  string
+	Rounds      []*tournaments.RoundTemplate
 }
 
 func humanDate(t time.Time) string {
