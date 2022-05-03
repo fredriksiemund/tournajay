@@ -235,7 +235,7 @@ func (app *application) loginUser(w http.ResponseWriter, r *http.Request) {
 	email := fmt.Sprintf("%v", payload.Claims["email"])
 	picture := fmt.Sprintf("%v", payload.Claims["picture"])
 
-	err = app.users.Insert(id, name, email, picture)
+	err = app.users.Upsert(id, name, email, picture)
 	if err != nil {
 		app.serverError(w, err)
 		return

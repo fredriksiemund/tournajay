@@ -10,10 +10,10 @@ var ErrDuplicate = errors.New("models: a record with this primary key already ex
 var ErrInvalidTree = errors.New("tournaments: each node has to have both left and right defined or none at all")
 
 type User struct {
-	Id      string
-	Name    string
-	Email   string
-	Picture string
+	Id      string `bson:"_id"`
+	Name    string `bson:"name"`
+	Email   string `bson:"email"`
+	Picture string `bson:"picture"`
 }
 
 type TournamentType struct {

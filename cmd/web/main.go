@@ -9,9 +9,13 @@ import (
 	"os"
 	"time"
 
+	"github.com/fredriksiemund/tournament-planner/pkg/models/mongodb"
 	"github.com/fredriksiemund/tournament-planner/pkg/models/postgres"
 	"github.com/golangcollege/sessions"
 	"github.com/jackc/pgx/v4"
+	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
+	"go.mongodb.org/mongo-driver/mongo/readpref"
 )
 
 type contextKey string
@@ -30,13 +34,14 @@ type application struct {
 	templateCache   map[string]*template.Template
 	tournaments     *postgres.TournamentModel
 	tournamentTypes *postgres.TournamentTypeModel
-	users           *postgres.UserModel
+	users           *mongodb.UserModel
 }
 
 func main() {
 	// Parsing the runtime configuration settings for the application
 	addr := flag.String("addr", ":4000", "HTTP network address")
 	connStr := flag.String("connStr", "postgres://root:root@localhost:5432/tournajay", "PostgreSQL connection string")
+	connStrMongo := flag.String("connStrMongo", "mongodb://root:root@localhost:27017", "MongoDb connection string")
 	secret := flag.String("secret", "s6Ndh+pPbnzHbS*+9Pk8qGWhTzbpa@ge", "Session secret key")
 
 	flag.Parse()
@@ -53,6 +58,16 @@ func main() {
 		errorLog.Fatal(err)
 	}
 	defer db.Close(ctx)
+
+	ctx, cancel = context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	mongoDb, err := mongoDbConnect(*connStrMongo, ctx)
+	if err != nil {
+		errorLog.Fatal(err)
+	}
+	defer mongoDb.Disconnect(ctx)
+	database := mongoDb.Database("tournajay")
 
 	// Set up template cache
 	templateCache, err := newTemplateCache("./ui/html/")
@@ -75,7 +90,7 @@ func main() {
 		templateCache:   templateCache,
 		tournaments:     &postgres.TournamentModel{Db: db},
 		tournamentTypes: &postgres.TournamentTypeModel{Db: db},
-		users:           &postgres.UserModel{Db: db},
+		users:           &mongodb.UserModel{Coll: database.Collection("users")},
 	}
 
 	// Running the HTTP server
@@ -96,10 +111,19 @@ func postgresConnect(connStr string, ctx context.Context) (*pgx.Conn, error) {
 	if err != nil {
 		return nil, err
 	}
-	// Since connections to the database are established lazily,
-	// we can verify that everything is set up correctly by calling db.Ping()
 	if err = conn.Ping(ctx); err != nil {
 		return nil, err
 	}
 	return conn, nil
+}
+
+func mongoDbConnect(connStr string, ctx context.Context) (*mongo.Client, error) {
+	client, err := mongo.Connect(ctx, options.Client().ApplyURI(connStr))
+	if err != nil {
+		return nil, err
+	}
+	if err = client.Ping(ctx, readpref.Primary()); err != nil {
+		return nil, err
+	}
+	return client, nil
 }

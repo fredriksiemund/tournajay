@@ -1,12 +1,21 @@
 version: "3.8"
 
 services:
-  db:
+  postgres:
     image: postgres
     restart: always
     environment:
       POSTGRES_USER: root
       POSTGRES_PASSWORD: root
-      POSTGRES_DB: dev
+      POSTGRES_DB: tournajay
     ports:
       - "5432:5432"
+  mongodb:
+    image: mongo
+    ports:
+      - 27017:27017
+    volumes:
+      - ~/apps/mongo:/data/db
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=root
+      - MONGO_INITDB_ROOT_PASSWORD=root

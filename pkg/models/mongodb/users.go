@@ -1,4 +1,4 @@
-package postgres
+package mongodb
 
 import (
 	"context"
@@ -6,22 +6,32 @@ import (
 	"time"
 
 	"github.com/fredriksiemund/tournament-planner/pkg/models"
-	"github.com/jackc/pgx/v4"
+	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 type UserModel struct {
-	Db *pgx.Conn
+	Coll *mongo.Collection
 }
 
 func (m *UserModel) Upsert(id, name, email, picture string) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
-	stmt := `INSERT INTO users (id, name, email, picture)
-	VALUES ($1, $2, $3, $4)
-	ON CONFLICT (id) DO UPDATE SET name = $2, email = $3, picture = $4`
+	filter := bson.M{
+		"_id": id,
+	}
+	update := bson.M{
+		"$set": bson.M{
+			"name":    name,
+			"email":   email,
+			"picture": picture,
+		},
+	}
+	options := options.Update().SetUpsert(true)
 
-	_, err := m.Db.Exec(ctx, stmt, id, name, email, picture)
+	_, err := m.Coll.UpdateOne(ctx, filter, update, options)
 	if err != nil {
 		return err
 	}
@@ -33,13 +43,14 @@ func (m *UserModel) One(id string) (*models.User, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
-	stmt := "SELECT u.id, u.name, u.email, u.picture FROM users u WHERE u.id = $1"
-	row := m.Db.QueryRow(ctx, stmt, id)
+	filter := bson.M{
+		"_id": id,
+	}
 
 	u := &models.User{}
-	err := row.Scan(&u.Id, &u.Name, &u.Email, &u.Picture)
+	err := m.Coll.FindOne(ctx, filter).Decode(u)
 	if err != nil {
-		if errors.Is(err, pgx.ErrNoRows) {
+		if errors.Is(err, mongo.ErrNoDocuments) {
 			return nil, models.ErrNoRecord
 		} else {
 			return nil, err
