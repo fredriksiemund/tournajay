@@ -1,7 +1,9 @@
 package postgres
 
 import (
+	"context"
 	"errors"
+	"time"
 
 	"github.com/fredriksiemund/tournament-planner/pkg/models"
 	"github.com/jackc/pgx/v4"
@@ -14,6 +16,9 @@ type TournamentModel struct {
 
 // This will insert a new tournament into the database.
 func (m *TournamentModel) Insert(title, description, datetime, tournamentTypeId, creatorId string) (int, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
 	stmt := `INSERT INTO tournaments (title, description, datetime, tournament_type_id, creator_id)
 	VALUES ($1, $2, $3, $4, $5) RETURNING id`
 
@@ -30,6 +35,9 @@ func (m *TournamentModel) Insert(title, description, datetime, tournamentTypeId,
 
 // This will return a specific tournament based on its id.
 func (m *TournamentModel) One(id int) (*models.Tournament, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
 	stmt := `SELECT t.id, t.title, t.description, t.datetime, tt.id, tt.name, u.id, u.name, u.email, u.picture
 	FROM tournaments t
 	INNER JOIN tournament_types tt ON t.tournament_type_id = tt.id
@@ -91,6 +99,9 @@ func (m *TournamentModel) One(id int) (*models.Tournament, error) {
 
 // This will return all tournaments.
 func (m *TournamentModel) All() ([]*models.Tournament, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
 	stmt := `SELECT t.id, t.title, t.description, t.datetime, tt.id, tt.name, u.id, u.name, u.email, u.picture
 	FROM tournaments t
 	INNER JOIN tournament_types tt ON t.tournament_type_id = tt.id
@@ -136,6 +147,9 @@ func (m *TournamentModel) All() ([]*models.Tournament, error) {
 }
 
 func (m *TournamentModel) Delete(id int) error {
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
 	stmt := "DELETE FROM tournaments WHERE id = $1"
 
 	_, err := m.Db.Exec(ctx, stmt, id)

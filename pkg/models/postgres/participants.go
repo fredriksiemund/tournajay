@@ -1,9 +1,11 @@
 package postgres
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"strings"
+	"time"
 
 	"github.com/fredriksiemund/tournament-planner/pkg/models"
 	"github.com/jackc/pgconn"
@@ -15,6 +17,9 @@ type ParticipantModel struct {
 }
 
 func (m *ParticipantModel) Insert(tournamentId int, userId string) error {
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
 	stmt := "INSERT INTO participants (tournament_id, user_id) VALUES ($1, $2)"
 
 	_, err := m.Db.Exec(ctx, stmt, tournamentId, userId)
@@ -31,6 +36,9 @@ func (m *ParticipantModel) Insert(tournamentId int, userId string) error {
 }
 
 func (m *ParticipantModel) AssignTeams(tournamentId int, participants []models.User, teamsIds []int) error {
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
 	var placeholders []string
 	var values []interface{}
 
@@ -55,6 +63,9 @@ func (m *ParticipantModel) AssignTeams(tournamentId int, participants []models.U
 }
 
 func (m *ParticipantModel) Delete(tournamentId int, userId string) error {
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
 	stmt := "DELETE FROM participants WHERE tournament_id = $1 AND user_id = $2"
 
 	_, err := m.Db.Exec(ctx, stmt, tournamentId, userId)

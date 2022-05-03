@@ -36,7 +36,7 @@ type application struct {
 func main() {
 	// Parsing the runtime configuration settings for the application
 	addr := flag.String("addr", ":4000", "HTTP network address")
-	connStr := flag.String("connStr", "postgres://root:root@localhost:5432/dev", "PostgreSQL connection string")
+	connStr := flag.String("connStr", "postgres://root:root@localhost:5432/tournajay", "PostgreSQL connection string")
 	secret := flag.String("secret", "s6Ndh+pPbnzHbS*+9Pk8qGWhTzbpa@ge", "Session secret key")
 
 	flag.Parse()
@@ -45,11 +45,14 @@ func main() {
 	errorLog := log.New(os.Stderr, "ERROR\t", log.Ldate|log.Ltime|log.Lshortfile)
 
 	// Establish DB connection
-	db, err := openDb(*connStr)
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	db, err := postgresConnect(*connStr, ctx)
 	if err != nil {
 		errorLog.Fatal(err)
 	}
-	defer db.Close(context.Background())
+	defer db.Close(ctx)
 
 	// Set up template cache
 	templateCache, err := newTemplateCache("./ui/html/")
@@ -88,14 +91,14 @@ func main() {
 	}
 }
 
-func openDb(connStr string) (*pgx.Conn, error) {
-	conn, err := pgx.Connect(context.Background(), connStr)
+func postgresConnect(connStr string, ctx context.Context) (*pgx.Conn, error) {
+	conn, err := pgx.Connect(ctx, connStr)
 	if err != nil {
 		return nil, err
 	}
 	// Since connections to the database are established lazily,
 	// we can verify that everything is set up correctly by calling db.Ping()
-	if err = conn.Ping(context.Background()); err != nil {
+	if err = conn.Ping(ctx); err != nil {
 		return nil, err
 	}
 	return conn, nil

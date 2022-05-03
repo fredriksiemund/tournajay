@@ -1,8 +1,10 @@
 package postgres
 
 import (
+	"context"
 	"fmt"
 	"strings"
+	"time"
 
 	"github.com/fredriksiemund/tournament-planner/pkg/models"
 	"github.com/jackc/pgx/v4"
@@ -13,6 +15,9 @@ type TeamModel struct {
 }
 
 func (m *TeamModel) Insert(nbrOfTeams int, tournamentId int) ([]int, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
 	var placeholders []string
 	var values []interface{}
 
@@ -48,6 +53,9 @@ func (m *TeamModel) Insert(nbrOfTeams int, tournamentId int) ([]int, error) {
 }
 
 func (m *TeamModel) All(tournamentId int) (map[int]*models.Team, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
 	stmt := `SELECT u.id, u.name, u.email, u.picture, t.id, t.name FROM participants p
 	INNER JOIN users u ON p.user_id = u.id
 	INNER JOIN teams t ON p.team_id = t.id

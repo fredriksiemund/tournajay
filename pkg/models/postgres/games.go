@@ -1,9 +1,11 @@
 package postgres
 
 import (
+	"context"
 	"fmt"
 	"sort"
 	"strings"
+	"time"
 
 	"github.com/fredriksiemund/tournament-planner/pkg/models"
 	"github.com/fredriksiemund/tournament-planner/pkg/tournaments"
@@ -15,6 +17,9 @@ type GameModel struct {
 }
 
 func (m *GameModel) InsertSingleEliminationGames(tournamentId int, games map[int][]*tournaments.GameNode) error {
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
 	// Sort keys
 	depths := make([]int, 0, len(games))
 	for k := range games {
@@ -72,6 +77,9 @@ func (m *GameModel) InsertSingleEliminationGames(tournamentId int, games map[int
 }
 
 func (m *GameModel) Exists(tournamentId int) (bool, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
 	stmt := "SELECT EXISTS (SELECT 1 from games WHERE tournament_id = $1)"
 
 	row := m.Db.QueryRow(ctx, stmt, tournamentId)
@@ -86,6 +94,9 @@ func (m *GameModel) Exists(tournamentId int) (bool, error) {
 }
 
 func (m *GameModel) All(tournamentId int) (map[int][]*models.Game, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
 	stmt := `SELECT g.id, g.depth, array_agg(coalesce(gp.from_game_id, -1)), array_agg(coalesce(gp.team_id, -1))
 	FROM games g
 	INNER JOIN game_paths gp ON g.id = gp.to_game_id
