@@ -9,13 +9,10 @@ import (
 	"os"
 	"time"
 
+	"github.com/fredriksiemund/tournament-planner/pkg/db"
 	"github.com/fredriksiemund/tournament-planner/pkg/models/mongodb"
 	"github.com/fredriksiemund/tournament-planner/pkg/models/postgres"
 	"github.com/golangcollege/sessions"
-	"github.com/jackc/pgx/v4"
-	"go.mongodb.org/mongo-driver/mongo"
-	"go.mongodb.org/mongo-driver/mongo/options"
-	"go.mongodb.org/mongo-driver/mongo/readpref"
 )
 
 type contextKey string
@@ -53,21 +50,21 @@ func main() {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
-	db, err := postgresConnect(*connStr, ctx)
+	psql, err := db.PostgresConnect(*connStr, ctx)
 	if err != nil {
 		errorLog.Fatal(err)
 	}
-	defer db.Close(ctx)
+	defer psql.Close(ctx)
 
 	ctx, cancel = context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
-	mongoDb, err := mongoDbConnect(*connStrMongo, ctx)
+	client, err := db.MongoConnect(*connStrMongo, ctx)
 	if err != nil {
 		errorLog.Fatal(err)
 	}
-	defer mongoDb.Disconnect(ctx)
-	database := mongoDb.Database("tournajay")
+	defer client.Disconnect(ctx)
+	mdb := client.Database("tournajay")
 
 	// Set up template cache
 	templateCache, err := newTemplateCache("./ui/html/")
@@ -82,15 +79,15 @@ func main() {
 	// Establishing the dependencies for the handlers (depenency injection)
 	app := &application{
 		errorLog:        errorLog,
-		games:           &postgres.GameModel{Db: db},
+		games:           &postgres.GameModel{Db: psql},
 		infoLog:         infoLog,
-		participants:    &postgres.ParticipantModel{Db: db},
+		participants:    &postgres.ParticipantModel{Db: psql},
 		session:         session,
-		teams:           &postgres.TeamModel{Db: db},
+		teams:           &postgres.TeamModel{Db: psql},
 		templateCache:   templateCache,
-		tournaments:     &postgres.TournamentModel{Db: db},
-		tournamentTypes: &postgres.TournamentTypeModel{Db: db},
-		users:           &mongodb.UserModel{Coll: database.Collection("users")},
+		tournaments:     &postgres.TournamentModel{Db: psql},
+		tournamentTypes: &postgres.TournamentTypeModel{Db: psql},
+		users:           &mongodb.UserModel{Coll: mdb.Collection("users")},
 	}
 
 	// Running the HTTP server
@@ -104,26 +101,4 @@ func main() {
 	if err != nil {
 		errorLog.Fatal(err)
 	}
-}
-
-func postgresConnect(connStr string, ctx context.Context) (*pgx.Conn, error) {
-	conn, err := pgx.Connect(ctx, connStr)
-	if err != nil {
-		return nil, err
-	}
-	if err = conn.Ping(ctx); err != nil {
-		return nil, err
-	}
-	return conn, nil
-}
-
-func mongoDbConnect(connStr string, ctx context.Context) (*mongo.Client, error) {
-	client, err := mongo.Connect(ctx, options.Client().ApplyURI(connStr))
-	if err != nil {
-		return nil, err
-	}
-	if err = client.Ping(ctx, readpref.Primary()); err != nil {
-		return nil, err
-	}
-	return client, nil
 }

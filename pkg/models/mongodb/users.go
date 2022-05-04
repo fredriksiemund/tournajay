@@ -11,6 +11,25 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
+var UserSchema = bson.M{
+	"required": []string{"_id", "email", "name", "picture"},
+	"properties": bson.M{
+		"_id": bson.M{
+			"bsonType": "string",
+		},
+		"email": bson.M{
+			"bsonType": "string",
+		},
+		"name": bson.M{
+			"bsonType": "string",
+		},
+		"picture": bson.M{
+			"bsonType": "string",
+		},
+	},
+	"additionalProperties": false,
+}
+
 type UserModel struct {
 	Coll *mongo.Collection
 }
@@ -22,7 +41,7 @@ func (m *UserModel) Upsert(id, name, email, picture string) error {
 	filter := bson.M{
 		"_id": id,
 	}
-	update := bson.M{
+	query := bson.M{
 		"$set": bson.M{
 			"name":    name,
 			"email":   email,
@@ -31,7 +50,7 @@ func (m *UserModel) Upsert(id, name, email, picture string) error {
 	}
 	options := options.Update().SetUpsert(true)
 
-	_, err := m.Coll.UpdateOne(ctx, filter, update, options)
+	_, err := m.Coll.UpdateOne(ctx, filter, query, options)
 	if err != nil {
 		return err
 	}
