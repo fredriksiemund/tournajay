@@ -9,12 +9,10 @@ import (
 	"github.com/jackc/pgx/v4"
 )
 
-// Define a TournamentModel type which wraps a pgx.Conn connection pool.
 type TournamentModel struct {
 	Db *pgx.Conn
 }
 
-// This will insert a new tournament into the database.
 func (m *TournamentModel) Insert(title, description, date, tournamentTypeId, creatorId string) (int, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
@@ -33,7 +31,6 @@ func (m *TournamentModel) Insert(title, description, date, tournamentTypeId, cre
 	return id, nil
 }
 
-// This will return a specific tournament based on its id.
 func (m *TournamentModel) One(id int) (*models.Tournament, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
@@ -68,9 +65,10 @@ func (m *TournamentModel) One(id int) (*models.Tournament, error) {
 		}
 	}
 
-	stmt = `SELECT u.id, u.name, u.email, u.picture FROM participants p
+	stmt = `SELECT u.id, u.name, u.email, u.picture FROM teams t
+	INNER JOIN participants p ON t.id = p.team_id
 	INNER JOIN users u ON p.user_id = u.id
-	WHERE p.tournament_id = $1`
+	WHERE t.tournament_id = $1`
 
 	rows, err := m.Db.Query(ctx, stmt, id)
 	if err != nil {
@@ -97,7 +95,6 @@ func (m *TournamentModel) One(id int) (*models.Tournament, error) {
 	return t, nil
 }
 
-// This will return all tournaments.
 func (m *TournamentModel) All() ([]*models.Tournament, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()

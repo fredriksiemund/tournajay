@@ -69,6 +69,12 @@ func (app *application) createTournament(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
+	err = app.teams.InsertOne(id, "Team 1")
+	if err != nil {
+		app.serverError(w, err)
+		return
+	}
+
 	http.Redirect(w, r, fmt.Sprintf("/tournament/%d", id), http.StatusSeeOther)
 }
 
@@ -166,7 +172,7 @@ func (app *application) createSchedule(w http.ResponseWriter, r *http.Request) {
 
 	// Generate teams
 	nbrOfTeams := int(math.Ceil(float64(len(t.Participants)) / 2.0))
-	teamIds, err := app.teams.Insert(nbrOfTeams, t.Id)
+	teamIds, err := app.teams.InsertMany(t.Id, nbrOfTeams)
 	if err != nil {
 		app.serverError(w, err)
 		return

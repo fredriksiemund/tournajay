@@ -14,7 +14,21 @@ type TeamModel struct {
 	Db *pgx.Conn
 }
 
-func (m *TeamModel) Insert(nbrOfTeams int, tournamentId int) ([]int, error) {
+func (m *TeamModel) InsertOne(tournamentId int, name string) error {
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	stmt := "INSERT INTO teams (tournament_id, name) VALUES ($1, $2)"
+
+	_, err := m.Db.Exec(ctx, stmt, tournamentId, name)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *TeamModel) InsertMany(tournamentId int, nbrOfTeams int) ([]int, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 

@@ -1,5 +1,4 @@
 DROP TABLE IF EXISTS game_paths;
-DROP TABLE IF EXISTS result_types;
 DROP TABLE IF EXISTS games;
 DROP TABLE IF EXISTS participants;
 DROP TABLE IF EXISTS teams;
@@ -38,11 +37,9 @@ CREATE TABLE teams (
 );
 
 CREATE TABLE participants (
-    tournament_id INT,
-    user_id TEXT,
     team_id INT,
-    PRIMARY KEY (tournament_id, user_id),
-    FOREIGN KEY (tournament_id) REFERENCES tournaments (id),
+    user_id TEXT,
+    PRIMARY KEY (team_id, user_id),
     FOREIGN KEY (user_id) REFERENCES users (id),
     FOREIGN KEY (team_id) REFERENCES teams (id)
 );
@@ -54,20 +51,14 @@ CREATE TABLE games (
     FOREIGN KEY (tournament_id) REFERENCES tournaments(id)
 );
 
-CREATE TABLE result_types (
-    id INT PRIMARY KEY,
-    name TEXT NOT NULL
-);
-
 CREATE TABLE game_paths (
     id SERIAL PRIMARY KEY,
     from_game_id INT,
     to_game_id INT NOT NULL,
-    result_type_id INT NOT NULL,
+    position INT NOT NULL,
     team_id INT,
     FOREIGN KEY (from_game_id) REFERENCES games(id),
     FOREIGN KEY (to_game_id) REFERENCES games(id),
-    FOREIGN KEY (result_type_id) REFERENCES result_types(id),
     FOREIGN KEY (team_id) REFERENCES teams(id),
     CONSTRAINT team_or_prev_game CHECK (from_game_id IS NOT NULL OR team_id IS NOT NULL)
 );
@@ -79,10 +70,6 @@ INSERT INTO tournament_types (name) VALUES
     ('Double elimination'),
     ('Straight Round Robin'),
     ('Split round robin followed by single elimination');
-
-INSERT INTO result_types (id, name) VALUES
-    (1, 'First'),
-    (2, 'Second');
 
 -- TEST DATA --
 INSERT INTO users values
@@ -101,16 +88,20 @@ INSERT INTO tournaments (title, description, date, tournament_type_id, creator_i
     ('Mario Kart Tournament', 'With supporting text below as a natural lead-in to additional content!', '2022-05-22 18:30', 4, '1'),
     ('Super Smash Tournament', 'With supporting text below as a natural lead-in to additional content!', '2022-05-09 19:00', 4, '2');
 
+INSERT INTO teams (tournament_id, name) VALUES
+    (1, 'Team 1'),
+    (2, 'Team 2');
+
 INSERT INTO participants values 
-    (1, 1), 
-    (1, 2),
-    (2, 1),
-    (2, 2),
-    (2, 3),
-    (2, 4),
-    (2, 5),
-    (2, 6),
-    (2, 7),
-    (2, 8),
-    (2, 9),
-    (2, 10);
+    (1, '1'), 
+    (1, '2'),
+    (2, '1'),
+    (2, '2'),
+    (2, '3'),
+    (2, '4'),
+    (2, '5'),
+    (2, '6'),
+    (2, '7'),
+    (2, '8'),
+    (2, '9'),
+    (2, '10');
