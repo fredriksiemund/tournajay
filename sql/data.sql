@@ -9,23 +9,23 @@ DROP TABLE IF EXISTS tournament_types;
 
 CREATE TABLE tournament_types (
     id SERIAL PRIMARY KEY,
-    name VARCHAR(255) NOT NULL
+    name TEXT NOT NULL
 );
 
 CREATE TABLE users (
-    id VARCHAR(255) PRIMARY KEY,
-    name VARCHAR(255) NOT NULL,
-    email VARCHAR(255) NOT NULL,
-    picture VARCHAR(255) NOT NULL
+    id TEXT PRIMARY KEY,
+    name TEXT NOT NULL,
+    email TEXT NOT NULL,
+    picture TEXT NOT NULL
 );
 
 CREATE TABLE tournaments (
     id SERIAL PRIMARY KEY,
-    title VARCHAR(255) NOT NULL,
+    title TEXT NOT NULL,
     description TEXT DEFAULT '' NOT NULL,
-    datetime TIMESTAMP NOT NULL,
+    date TIMESTAMP NOT NULL,
     tournament_type_id INT NOT NULL,
-    creator_id VARCHAR(255) NOT NULL,
+    creator_id TEXT NOT NULL,
     FOREIGN KEY (tournament_type_id) REFERENCES tournament_types (id),
     FOREIGN KEY (creator_id) REFERENCES users (id)
 );
@@ -33,13 +33,13 @@ CREATE TABLE tournaments (
 CREATE TABLE teams (
     id SERIAL PRIMARY KEY,
     tournament_id INT NOT NULL,
-    name VARCHAR(255) NOT NULL,
+    name TEXT NOT NULL,
     FOREIGN KEY (tournament_id) REFERENCES tournaments (id)
 );
 
 CREATE TABLE participants (
     tournament_id INT,
-    user_id VARCHAR(255),
+    user_id TEXT,
     team_id INT,
     PRIMARY KEY (tournament_id, user_id),
     FOREIGN KEY (tournament_id) REFERENCES tournaments (id),
@@ -56,7 +56,7 @@ CREATE TABLE games (
 
 CREATE TABLE result_types (
     id INT PRIMARY KEY,
-    name VARCHAR(255) NOT NULL
+    name TEXT NOT NULL
 );
 
 CREATE TABLE game_paths (
@@ -97,7 +97,7 @@ INSERT INTO users values
     ('9', 'Babben Larsson', 'temp@example.com', 'https://randomuser.me/api/portraits/lego/9.jpg'),
     ('10', 'David Sundin', 'temp@example.com', 'https://randomuser.me/api/portraits/lego/1.jpg');
 
-INSERT INTO tournaments (title, description, datetime, tournament_type_id, creator_id) VALUES
+INSERT INTO tournaments (title, description, date, tournament_type_id, creator_id) VALUES
     ('Mario Kart Tournament', 'With supporting text below as a natural lead-in to additional content!', '2022-05-22 18:30', 4, '1'),
     ('Super Smash Tournament', 'With supporting text below as a natural lead-in to additional content!', '2022-05-09 19:00', 4, '2');
 

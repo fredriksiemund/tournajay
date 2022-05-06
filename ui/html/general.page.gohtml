@@ -19,7 +19,7 @@
 
           <ul class="list-group list-group-flush">
             <li class="list-group-item">Type: {{ .Type.Name }}</li>
-            <li class="list-group-item">When: {{ humanDate .DateTime }}</li>
+            <li class="list-group-item">When: {{ humanDate .Date }}</li>
             {{ if (eq .Creator.Id $.CurrentUser.Id) }}
               <li class="list-group-item">
                 <button type="button" class="btn btn-warning btn-sm me-2">

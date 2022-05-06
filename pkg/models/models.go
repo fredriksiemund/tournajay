@@ -25,7 +25,7 @@ type Tournament struct {
 	Id           int
 	Title        string
 	Description  string
-	DateTime     time.Time
+	Date         time.Time
 	Type         TournamentType
 	Creator      User
 	Participants []User

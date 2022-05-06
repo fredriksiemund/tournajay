@@ -45,13 +45,13 @@
           <label class="form-label">Date</label>
           <input
             type="datetime-local"
-            name="datetime"
-            class="form-control {{ with .Errors.Get "datetime" }}
+            name="date"
+            class="form-control {{ with .Errors.Get "date" }}
               is-invalid
             {{ end }}"
-            value="{{ .Get "datetime" }}"
+            value="{{ .Get "date" }}"
           />
-          {{ with .Errors.Get "datetime" }}
+          {{ with .Errors.Get "date" }}
             <div class="invalid-feedback">{{ . }}</div>
           {{ end }}
         </div>

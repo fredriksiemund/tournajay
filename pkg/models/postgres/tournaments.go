@@ -15,14 +15,14 @@ type TournamentModel struct {
 }
 
 // This will insert a new tournament into the database.
-func (m *TournamentModel) Insert(title, description, datetime, tournamentTypeId, creatorId string) (int, error) {
+func (m *TournamentModel) Insert(title, description, date, tournamentTypeId, creatorId string) (int, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
-	stmt := `INSERT INTO tournaments (title, description, datetime, tournament_type_id, creator_id)
+	stmt := `INSERT INTO tournaments (title, description, date, tournament_type_id, creator_id)
 	VALUES ($1, $2, $3, $4, $5) RETURNING id`
 
-	row := m.Db.QueryRow(ctx, stmt, title, description, datetime, tournamentTypeId, creatorId)
+	row := m.Db.QueryRow(ctx, stmt, title, description, date, tournamentTypeId, creatorId)
 
 	var id int
 	err := row.Scan(&id)
@@ -38,7 +38,7 @@ func (m *TournamentModel) One(id int) (*models.Tournament, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
-	stmt := `SELECT t.id, t.title, t.description, t.datetime, tt.id, tt.name, u.id, u.name, u.email, u.picture
+	stmt := `SELECT t.id, t.title, t.description, t.date, tt.id, tt.name, u.id, u.name, u.email, u.picture
 	FROM tournaments t
 	INNER JOIN tournament_types tt ON t.tournament_type_id = tt.id
 	INNER JOIN users u ON t.creator_id = u.id
@@ -52,7 +52,7 @@ func (m *TournamentModel) One(id int) (*models.Tournament, error) {
 		&t.Id,
 		&t.Title,
 		&t.Description,
-		&t.DateTime,
+		&t.Date,
 		&t.Type.Id,
 		&t.Type.Name,
 		&t.Creator.Id,
@@ -102,11 +102,11 @@ func (m *TournamentModel) All() ([]*models.Tournament, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
-	stmt := `SELECT t.id, t.title, t.description, t.datetime, tt.id, tt.name, u.id, u.name, u.email, u.picture
+	stmt := `SELECT t.id, t.title, t.description, t.date, tt.id, tt.name, u.id, u.name, u.email, u.picture
 	FROM tournaments t
 	INNER JOIN tournament_types tt ON t.tournament_type_id = tt.id
 	INNER JOIN users u ON t.creator_id = u.id
-	ORDER BY t.datetime ASC`
+	ORDER BY t.date ASC`
 
 	rows, err := m.Db.Query(ctx, stmt)
 	if err != nil {
@@ -124,7 +124,7 @@ func (m *TournamentModel) All() ([]*models.Tournament, error) {
 			&t.Id,
 			&t.Title,
 			&t.Description,
-			&t.DateTime,
+			&t.Date,
 			&t.Type.Id,
 			&t.Type.Name,
 			&t.Creator.Id,

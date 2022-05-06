@@ -24,7 +24,7 @@
           {{ range .Tournaments }}
             <tr>
               <td><a href="/tournament/{{ .Id }}">{{ .Title }}</a></td>
-              <td>{{ humanDate .DateTime }}</td>
+              <td>{{ humanDate .Date }}</td>
             </tr>
           {{ end }}
         </tbody>

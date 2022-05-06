@@ -34,7 +34,7 @@ func (app *application) home(w http.ResponseWriter, r *http.Request) {
 
 func (app *application) createTournamentForm(w http.ResponseWriter, r *http.Request) {
 	v := url.Values{}
-	v.Set("datetime", time.Now().Format(layout))
+	v.Set("date", time.Now().Format(layout))
 	form := forms.New(v)
 
 	app.render(w, r, "create.page.gohtml", &templateData{
@@ -50,11 +50,11 @@ func (app *application) createTournament(w http.ResponseWriter, r *http.Request)
 	}
 
 	form := forms.New(r.PostForm)
-	form.Required("title", "datetime", "type")
+	form.Required("title", "date", "type")
 	form.MaxLength("title", 100)
 	form.MaxLength("description", 1000)
 	form.PermittedValues("type", "1", "2", "3", "4")
-	form.ValidDate("datetime", layout)
+	form.ValidDate("date", layout)
 
 	if !form.Valid() {
 		app.render(w, r, "create.page.gohtml", &templateData{
@@ -63,7 +63,7 @@ func (app *application) createTournament(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	id, err := app.tournaments.Insert(form.Get("title"), form.Get("description"), form.Get("datetime"), form.Get("type"), app.getCurrentUser(r).Id)
+	id, err := app.tournaments.Insert(form.Get("title"), form.Get("description"), form.Get("date"), form.Get("type"), app.getCurrentUser(r).Id)
 	if err != nil {
 		app.serverError(w, err)
 		return
