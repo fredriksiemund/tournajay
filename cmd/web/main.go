@@ -10,7 +10,6 @@ import (
 	"time"
 
 	"github.com/fredriksiemund/tournament-planner/pkg/db"
-	"github.com/fredriksiemund/tournament-planner/pkg/models/mongodb"
 	"github.com/fredriksiemund/tournament-planner/pkg/models/postgres"
 	"github.com/golangcollege/sessions"
 )
@@ -31,14 +30,13 @@ type application struct {
 	templateCache   map[string]*template.Template
 	tournaments     *postgres.TournamentModel
 	tournamentTypes *postgres.TournamentTypeModel
-	users           *mongodb.UserModel
+	users           *postgres.UserModel
 }
 
 func main() {
 	// Parsing the runtime configuration settings for the application
 	addr := flag.String("addr", ":4000", "HTTP network address")
 	connStr := flag.String("connStr", "postgres://root:root@localhost:5432/tournajay", "PostgreSQL connection string")
-	connStrMongo := flag.String("connStrMongo", "mongodb://root:root@localhost:27017", "MongoDb connection string")
 	secret := flag.String("secret", "s6Ndh+pPbnzHbS*+9Pk8qGWhTzbpa@ge", "Session secret key")
 
 	flag.Parse()
@@ -55,16 +53,6 @@ func main() {
 		errorLog.Fatal(err)
 	}
 	defer psql.Close(ctx)
-
-	ctx, cancel = context.WithTimeout(context.Background(), 10*time.Second)
-	defer cancel()
-
-	client, err := db.MongoConnect(*connStrMongo, ctx)
-	if err != nil {
-		errorLog.Fatal(err)
-	}
-	defer client.Disconnect(ctx)
-	mdb := client.Database("tournajay")
 
 	// Set up template cache
 	templateCache, err := newTemplateCache("./ui/html/")
@@ -87,7 +75,7 @@ func main() {
 		templateCache:   templateCache,
 		tournaments:     &postgres.TournamentModel{Db: psql},
 		tournamentTypes: &postgres.TournamentTypeModel{Db: psql},
-		users:           &mongodb.UserModel{Coll: mdb.Collection("users")},
+		users:           &postgres.UserModel{Db: psql},
 	}
 
 	// Running the HTTP server
