@@ -36,7 +36,7 @@ type application struct {
 func main() {
 	// Parsing the runtime configuration settings for the application
 	addr := flag.String("addr", ":4000", "HTTP network address")
-	connStr := flag.String("connStr", "postgres://root:root@localhost:5432/tournajay", "PostgreSQL connection string")
+	connStr := flag.String("connStr", "postgres://root:root@db:5432/tournajay", "PostgreSQL connection string")
 	secret := flag.String("secret", "s6Ndh+pPbnzHbS*+9Pk8qGWhTzbpa@ge", "Session secret key")
 
 	flag.Parse()

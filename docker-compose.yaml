@@ -1,7 +1,14 @@
 version: "3.8"
 
 services:
-  postgresql:
+  web:
+    image: cosmtrek/air
+    working_dir: /app
+    ports:
+      - 4000:4000
+    volumes:
+      - ./:/app
+  db:
     image: postgres
     restart: always
     environment:
@@ -10,3 +17,7 @@ services:
       POSTGRES_DB: tournajay
     ports:
       - "5432:5432"
+    volumes:
+      - db-data:/var/lib/postgresql/data
+volumes:
+  db-data:
